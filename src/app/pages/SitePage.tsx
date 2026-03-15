@@ -31,6 +31,10 @@ import { ErrorBoundary }   from "../components/ErrorBoundary";
 import { SeoHead }         from "../components/SeoHead";
 import { Header }          from "../components/Header";
 import { Hero }            from "../components/Hero";
+import { Benefits }        from "../components/Benefits";
+import { Footer }          from "../components/Footer";
+import { SeoTextSection }  from "../components/SeoTextSection";
+import { ScrollToTop }     from "../components/ScrollToTop";
 import { LazySection }     from "../components/LazySection";
 import { OfflineNotice }   from "../components/OfflineNotice";
 import {
@@ -41,9 +45,11 @@ import {
 } from "../lib/integrations";
 import { captureUtm } from "../lib/utm";
 
-// ── Lazy chunks ─────────────────────────────────────────────────────────────
-// Each import() creates a separate Vite chunk. These are NOT parsed during
-// initial load — only when IntersectionObserver triggers in LazySection.
+// ── Lazy chunks: ONLY sections that are far below fold + modals ─────────────
+// Benefits, Footer, SeoTextSection, ScrollToTop are now EAGER:
+//   • Benefits — first section after Hero, visible on first scroll
+//   • Footer/SeoTextSection — tiny, always needed, separate chunk overhead > inline cost
+//   • ScrollToTop — ~1KB, lazy is absurd for this size
 
 const lazySection = <T extends Record<string, React.ComponentType<any>>>(
   path: () => Promise<T>,
@@ -53,7 +59,6 @@ const lazySection = <T extends Record<string, React.ComponentType<any>>>(
     path().then((mod) => ({ default: mod[key] as React.ComponentType<any> }))
   );
 
-const Benefits     = lazySection(() => import("../components/Benefits"),    "Benefits");
 const Calculator   = lazySection(() => import("../components/Calculator"),  "Calculator");
 const Pricing      = lazySection(() => import("../components/Pricing"),     "Pricing");
 const WhoIsItFor   = lazySection(() => import("../components/WhoIsItFor"),  "WhoIsItFor");
@@ -61,18 +66,13 @@ const HowItWorks   = lazySection(() => import("../components/HowItWorks"),  "How
 const SocialProof  = lazySection(() => import("../components/SocialProof"), "SocialProof");
 const FAQ          = lazySection(() => import("../components/FAQ"),         "FAQ");
 const FinalCTA     = lazySection(() => import("../components/FinalCTA"),    "FinalCTA");
-const Footer       = lazySection(() => import("../components/Footer"),      "Footer");
-const SeoTextSection = lazySection(() => import("../components/SeoTextSection"), "SeoTextSection");
-const ScrollToTop  = lazySection(() => import("../components/ScrollToTop"), "ScrollToTop");
 const OrderModal   = lazySection(() => import("../components/OrderModal"),  "OrderModal");
 const PrivacyModal = lazySection(() => import("../components/PrivacyModal"),"PrivacyModal");
 
 // ── Prefetch helper ──────────────────────────────────────────────────────────
-// Called during browser idle time so chunks are cached before user scrolls.
-// Uses requestIdleCallback when available, setTimeout fallback.
+// Only prefetch chunks that are still lazy (7 landing sections + 2 modals).
 function prefetchChunks() {
   const chunks = [
-    () => import("../components/Benefits"),
     () => import("../components/Calculator"),
     () => import("../components/Pricing"),
     () => import("../components/WhoIsItFor"),
@@ -80,9 +80,6 @@ function prefetchChunks() {
     () => import("../components/SocialProof"),
     () => import("../components/FAQ"),
     () => import("../components/FinalCTA"),
-    () => import("../components/Footer"),
-    () => import("../components/SeoTextSection"),
-    () => import("../components/ScrollToTop"),
     () => import("../components/OrderModal"),
     () => import("../components/PrivacyModal"),
   ];
@@ -207,15 +204,15 @@ export function SitePage() {
           {/* ── ABOVE FOLD: always eager ── */}
           <Hero onOrder={openOrder} onCalc={openCalc} />
 
+          {/* ── Benefits: eager — first section after Hero, visible on first scroll ── */}
+          <div id="benefits" aria-hidden="true" style={{ height: 0, overflow: "hidden", pointerEvents: "none" }} />
+          <Benefits />
+
           {/* ── BELOW FOLD: React.lazy() + IntersectionObserver ── */}
           {/* Each LazySection:
               1. Renders a stable-height placeholder (no CLS)
               2. When user scrolls within 500px → renders Suspense
               3. Chunk was prefetched at idle time → instant display */}
-
-          <LazySection anchorId="benefits"    minHeight={700}>
-            <Benefits />
-          </LazySection>
 
           <LazySection anchorId="calculator"  minHeight={560}>
             <Calculator onOrder={openOrderFromCalc} />
@@ -246,15 +243,9 @@ export function SitePage() {
           </LazySection>
         </main>
 
-        {/* Footer + SEO text — lazy but no anchor needed.
-            Wrapped in ErrorBoundary so a chunk load failure renders
-            nothing rather than replacing the whole page with an error screen. */}
-        <ErrorBoundary fallback={null}>
-          <Suspense fallback={null}>
-            <SeoTextSection />
-            <Footer onPrivacy={() => setPrivacyOpen(true)} />
-          </Suspense>
-        </ErrorBoundary>
+        {/* Footer + SEO text — eager (tiny components, no reason for lazy overhead) */}
+        <SeoTextSection />
+        <Footer onPrivacy={() => setPrivacyOpen(true)} />
 
         {/* Modals — lazy, rendered only when opened */}
         <ErrorBoundary fallback={null}>
@@ -274,12 +265,8 @@ export function SitePage() {
           </Suspense>
         </ErrorBoundary>
 
-        {/* ScrollToTop — lazy, appears only after 400px scroll */}
-        <ErrorBoundary fallback={null}>
-          <Suspense fallback={null}>
-            <ScrollToTop />
-          </Suspense>
-        </ErrorBoundary>
+        {/* ScrollToTop — eager (tiny ~1KB component) */}
+        <ScrollToTop />
 
         <style>{`
           html, body { margin: 0; padding: 0; background: #0d1a0f; }

@@ -88,16 +88,15 @@ export function SeoHead() {
       setLink("stylesheet", { rel: "stylesheet", href: GOOGLE_FONTS_URL }, "google-fonts");
     }
 
-    // ── DNS prefetch ──────────────────────────────────────────────────────
-    setLink("dns-prefetch", { rel: "dns-prefetch", href: "https://www.googletagmanager.com" }, "dns-gtm");
-    setLink("dns-prefetch", { rel: "dns-prefetch", href: "https://www.google-analytics.com" }, "dns-ga");
-    setLink("dns-prefetch", { rel: "dns-prefetch", href: "https://api.telegram.org" }, "dns-tg");
-
-    // Hero image CDN — preconnect removed: Hero.tsx no longer uses Unsplash fallback.
-    // Other sections (Pricing, WhoIsItFor, SocialProof) still use Unsplash, so keep dns-prefetch.
-    setLink("dns-prefetch", { rel: "dns-prefetch", href: "https://images.unsplash.com" }, "dns-unsplash");
-    // Supabase storage — used for uploaded hero/truck images
-    setLink("preconnect", { rel: "preconnect", href: "https://iimoqcdnnehpbqcnasou.supabase.co" }, "preconnect-supabase");
+    // ── Resource hints ───────────────────────────────────────────────────
+    // All preconnect hints (fonts + Supabase) are handled by critical.ts
+    // which runs at module-parse time — BEFORE React renders.
+    //
+    // dns-prefetch for GTM/GA/Telegram/Unsplash intentionally removed:
+    //  • GTM & GA are interaction-deferred → dns-prefetch at page load is wasted work
+    //  • Telegram API is only called on form submit
+    //  • Unsplash images are in lazy-loaded sections far below the fold
+    // Lighthouse counts every resource hint — fewer hints = cleaner waterfall.
 
     // ── canonical & hreflang ──────────────────────────────────────────────
     setLink("canonical",  { rel: "canonical", href: canonical }, "canonical");
