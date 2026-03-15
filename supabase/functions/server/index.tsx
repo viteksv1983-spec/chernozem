@@ -62,6 +62,91 @@ async function verifyAdminPassword(password: string): Promise<boolean> {
 // ── Health ───────────────────────────────────────────────────────
 app.get("/make-server-857b076b/health", (c) => c.json({ status: "ok" }));
 
+// ── GET og-image (public proxy for social media bots) ────────────
+// Bots (Facebook, Telegram, Twitter, LinkedIn) don't execute JS,
+// so they need a direct, public URL that returns the actual image bytes.
+app.get("/make-server-857b076b/og-image", async (c) => {
+  try {
+    // Try common extensions: webp, jpg, png
+    const extensions = ["webp", "jpg", "png"];
+    let fileData: Uint8Array | null = null;
+    let contentType = "image/jpeg";
+
+    for (const ext of extensions) {
+      const filePath = `ogImage.${ext}`;
+      const { data, error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .download(filePath);
+
+      if (!error && data) {
+        const arrayBuf = await data.arrayBuffer();
+        fileData = new Uint8Array(arrayBuf);
+        contentType = ext === "webp" ? "image/webp" : ext === "png" ? "image/png" : "image/jpeg";
+        console.log(`OG image served: ${filePath} (${fileData.length} bytes)`);
+        break;
+      }
+    }
+
+    if (!fileData) {
+      console.log("OG image not found in storage for any extension");
+      return c.json({ error: "OG image not found" }, 404);
+    }
+
+    return new Response(fileData, {
+      status: 200,
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=86400, s-maxage=604800",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch (e) {
+    console.log("Error serving OG image:", e);
+    return c.json({ error: `OG image proxy error: ${e}` }, 500);
+  }
+});
+
+// ── GET any image from storage (public proxy) ────────────────────
+// Serves images by key name (e.g. /images/apple-touch-icon)
+app.get("/make-server-857b076b/images/:key", async (c) => {
+  try {
+    const key = c.req.param("key");
+    const extensions = ["png", "webp", "jpg", "svg"];
+    let fileData: Uint8Array | null = null;
+    let contentType = "image/png";
+
+    for (const ext of extensions) {
+      const filePath = `${key}.${ext}`;
+      const { data, error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .download(filePath);
+
+      if (!error && data) {
+        const arrayBuf = await data.arrayBuffer();
+        fileData = new Uint8Array(arrayBuf);
+        contentType = ext === "svg" ? "image/svg+xml" : ext === "webp" ? "image/webp" : ext === "png" ? "image/png" : "image/jpeg";
+        break;
+      }
+    }
+
+    if (!fileData) {
+      return c.json({ error: `Image "${key}" not found` }, 404);
+    }
+
+    return new Response(fileData, {
+      status: 200,
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=86400, s-maxage=604800",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch (e) {
+    console.log("Error serving image:", e);
+    return c.json({ error: `Image proxy error: ${e}` }, 500);
+  }
+});
+
 // ── GET content ──────────────────────────────────────────────────
 app.get("/make-server-857b076b/content", async (c) => {
   try {
