@@ -72,6 +72,28 @@ export function ContentProvider({ children }: { children: ReactNode }) {
         if (sc?.hero?.headlineLine2 === "по Києву") {
           sc = { ...sc, hero: { ...sc.hero, headlineLine2: "по Києву та області" } };
         }
+
+        // ── Міграція: відновити зіпсований Unicode у заголовках benefits ──
+        // Символ "і" (U+0456) при подвійному кодуванні UTF-8→Latin1 може
+        // зберегтись у Supabase як послідовність сміттєвих байт.
+        // Перевіряємо кожен title: якщо він починається з "Чорнозем у м"
+        // і НЕ містить правильного "мішках" — примусово відновлюємо.
+        if (sc?.benefits) {
+          sc = {
+            ...sc,
+            benefits: sc.benefits.map((b) => {
+              if (b.title.startsWith("Чорнозем у м") && !b.title.includes("мішках")) {
+                return {
+                  ...b,
+                  title: "Чорнозем у мішках",
+                  desc: "Є фасований чорнозем у мішках по 50 кг — 100 грн/мішок. Зручно для балконів, клумб та невеликих робіт.",
+                };
+              }
+              return b;
+            }),
+          };
+        }
+
         serverContent = sc;
       })
       .catch((e) => {

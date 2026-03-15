@@ -204,23 +204,6 @@ export function SocialProof({ onOrder }: SocialProofProps) {
                       background: "linear-gradient(to bottom, transparent, rgba(248,244,238,0.85))",
                       pointerEvents: "none",
                     }} />
-                    {/* Label badge */}
-                    <div style={{
-                      position: "absolute",
-                      bottom: "14px",
-                      left: "16px",
-                      background: "rgba(20,12,7,0.72)",
-                      backdropFilter: "blur(8px)",
-                      WebkitBackdropFilter: "blur(8px)",
-                      borderRadius: "7px",
-                      padding: "5px 12px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}>
-                      <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#4fdb8c", flexShrink: 0 }} />
-                      <span style={{ fontFamily: SANS, fontSize: "12px", color: "#fff", fontWeight: 500 }}>{meta.label}</span>
-                    </div>
                   </div>
                 </div>
 
