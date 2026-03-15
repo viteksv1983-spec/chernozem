@@ -62,12 +62,11 @@ function TruckCard({ d, i, isSelected, onSelect, onOrder, imgSrc }: {
       whileHover={{ y: -6, transition: { type: "spring", stiffness: 320, damping: 24 } }}
       style={{
         borderRadius: "14px",
-        border: "2px solid",
-        borderColor: isSelected
-          ? d.highlight ? "rgba(143,232,180,0.85)" : "#3FAE6C"
+        border: isSelected
+          ? d.highlight ? "2px solid rgba(143,232,180,0.85)" : "2px solid #3FAE6C"
           : hovered
-            ? d.highlight ? "rgba(143,232,180,0.55)" : "#3FAE6C"
-            : d.highlight ? "rgba(143,232,180,0.15)" : "transparent",
+            ? d.highlight ? "2px solid rgba(143,232,180,0.55)" : "2px solid #3FAE6C"
+            : d.highlight ? "2px solid rgba(143,232,180,0.15)" : "2px solid #e0d8c8",
         background: d.highlight ? "#1e3d2a" : "#f5efe4",
         position: "relative", overflow: "hidden",
         display: "flex", flexDirection: "column", cursor: "pointer",

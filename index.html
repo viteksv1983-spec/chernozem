@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
-      // SPA redirect trick for GitHub Pages — restores encoded route
+      // SPA redirect trick for GitHub Pages — restores the encoded route
+      // from 404.html redirect back into window.history before React mounts.
       (function(l) {
         if (l.search[1] === '/') {
           var decoded = l.search.slice(1).split('&').map(function(s) {

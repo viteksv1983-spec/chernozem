@@ -5,6 +5,9 @@
     <title>КиївЧорнозем</title>
     <script>
       // SPA redirect trick for GitHub Pages
+      // When GitHub Pages returns 404, this page encodes the URL
+      // and redirects to index.html which then restores the route.
+      // pathSegmentsToKeep=1 because base is /chernozem/
       var pathSegmentsToKeep = 1;
       var l = window.location;
       l.replace(

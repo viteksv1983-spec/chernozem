@@ -101,6 +101,7 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
+          className="hero-badge"
           style={{
             display: "inline-flex", alignItems: "center", gap: "10px",
             background: "rgba(14,48,28,0.52)",
@@ -109,10 +110,12 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             marginBottom: "32px",
             backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
             boxShadow: "0 2px 20px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.06)",
+            maxWidth: "calc(100vw - 40px)",
+            overflow: "hidden",
           }}
         >
           <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#4fdb8c", boxShadow: "0 0 12px rgba(79,219,140,0.9), 0 0 24px rgba(79,219,140,0.4)", flexShrink: 0, animation: "livePulse 2.4s ease-in-out infinite", display: "inline-block" }} />
-          <span style={{ fontFamily: SANS, fontSize: "13px", fontWeight: 500, color: "#9ef0c0", letterSpacing: "0.6px" }}>
+          <span className="hero-badge-text" style={{ fontFamily: SANS, fontSize: "13px", fontWeight: 500, color: "#9ef0c0", letterSpacing: "0.6px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>
             {hero.badge}
           </span>
         </motion.div>
@@ -133,6 +136,8 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             maxWidth: "820px",
             marginBottom: "22px",
             textShadow: "0 2px 8px rgba(0,0,0,0.70), 0 8px 48px rgba(0,0,0,0.40)",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
           }}
         >
           {headlineLine1}
@@ -341,18 +346,38 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           50%       { opacity: 0.55; box-shadow: 0 0 6px rgba(79,219,140,0.5), 0 0 12px rgba(79,219,140,0.2); }
         }
 
-        /* ── MOBILE ── */
+        /* ── TABLET / LARGE PHONE (481px – 768px) ── */
         @media (max-width: 768px) {
-          .hero-content { padding: 100px 20px 0 !important; }
-          .hero-headline { letter-spacing: -1.5px !important; margin-bottom: 18px !important; }
-          .hero-sub { margin-bottom: 32px !important; }
+          .hero-content {
+            padding: 104px 20px 0 !important;
+          }
+          .hero-badge {
+            max-width: calc(100vw - 40px) !important;
+            margin-bottom: 24px !important;
+          }
+          .hero-badge-text {
+            max-width: calc(100vw - 100px) !important;
+          }
+          .hero-headline {
+            font-size: 38px !important;
+            letter-spacing: -1.4px !important;
+            line-height: 1.07 !important;
+            margin-bottom: 16px !important;
+            max-width: 100% !important;
+          }
+          .hero-sub {
+            font-size: 15px !important;
+            max-width: 100% !important;
+            line-height: 1.68 !important;
+            margin-bottom: 28px !important;
+          }
 
-          /* CTAs: primary full-width, secondary + phone in a row */
+          /* CTAs — primary full width, secondary + phone side by side */
           .hero-cta-row {
             flex-direction: column !important;
             align-items: stretch !important;
             gap: 10px !important;
-            margin-bottom: 36px !important;
+            margin-bottom: 32px !important;
           }
           .hero-cta-primary {
             width: 100% !important;
@@ -365,29 +390,26 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           .hero-cta-phone {
             flex: 1 !important;
             font-size: 14px !important;
-            padding: 15px 16px !important;
-            border-radius: 12px !important;
+            padding: 17px 18px !important;
+            border-radius: 13px !important;
+            justify-content: center !important;
           }
-          /* Put secondary + phone side by side */
-          .hero-cta-row > .hero-cta-secondary,
-          .hero-cta-row > .hero-cta-phone {
-            display: inline-flex !important;
-          }
-          /* Flex row for secondary + phone */
-          .hero-cta-row::after {
-            content: none;
+          /* Side-by-side row for secondary + phone */
+          .hero-cta-secondary-phone-wrap {
+            display: flex !important;
+            gap: 10px !important;
           }
 
-          /* Trust: 2×2 grid of dark cards */
+          /* Trust strip: 2 × 2 dark cards */
           .hero-trust-wrap {
-            background: rgba(4,12,6,0.82) !important;
-            border-top: 1px solid rgba(255,255,255,0.08) !important;
+            background: rgba(4,12,6,0.88) !important;
+            border-top: 1px solid rgba(255,255,255,0.07) !important;
           }
           .hero-trust-strip {
             display: grid !important;
             grid-template-columns: 1fr 1fr !important;
-            gap: 10px !important;
-            padding: 16px 16px 0 !important;
+            gap: 9px !important;
+            padding: 14px 16px 0 !important;
             max-width: 100% !important;
           }
           .hero-trust-item {
@@ -395,24 +417,70 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             align-items: flex-start !important;
             gap: 10px !important;
             border-left: none !important;
-            padding: 16px 14px !important;
+            padding: 15px 14px !important;
             background: rgba(255,255,255,0.055) !important;
-            border: 1px solid rgba(255,255,255,0.10) !important;
+            border: 1px solid rgba(255,255,255,0.09) !important;
             border-radius: 14px !important;
           }
           .hero-trust-icon {
-            width: 38px !important;
-            height: 38px !important;
+            width: 36px !important;
+            height: 36px !important;
           }
           .hero-learn-more { display: block !important; }
           .hero-scroll-indicator { display: none !important; }
         }
 
+        /* ── SMALL PHONE (≤ 480px) ── */
         @media (max-width: 480px) {
-          .hero-content { padding: 88px 16px 0 !important; }
-          .hero-trust-strip { padding: 14px 14px 0 !important; gap: 8px !important; }
-          .hero-cta-primary { font-size: 16px !important; padding: 18px 20px !important; }
-          .hero-cta-secondary, .hero-cta-phone { font-size: 13px !important; padding: 14px 12px !important; }
+          .hero-content { padding: 92px 16px 0 !important; }
+          .hero-badge {
+            padding: 7px 16px !important;
+            margin-bottom: 20px !important;
+            max-width: calc(100vw - 88px) !important;
+          }
+          .hero-badge-text {
+            font-size: 12px !important;
+            max-width: calc(100vw - 88px) !important;
+          }
+          .hero-headline {
+            font-size: 34px !important;
+            letter-spacing: -1px !important;
+            line-height: 1.07 !important;
+            margin-bottom: 14px !important;
+          }
+          .hero-sub {
+            font-size: 14px !important;
+            line-height: 1.65 !important;
+            margin-bottom: 24px !important;
+          }
+          .hero-cta-row { gap: 9px !important; margin-bottom: 28px !important; }
+          .hero-cta-primary {
+            font-size: 16px !important;
+            padding: 19px 20px !important;
+            border-radius: 14px !important;
+          }
+          .hero-cta-secondary,
+          .hero-cta-phone {
+            font-size: 13px !important;
+            padding: 16px 14px !important;
+            border-radius: 12px !important;
+          }
+          .hero-trust-strip { padding: 12px 14px 0 !important; gap: 8px !important; }
+          .hero-trust-item {
+            padding: 13px 12px !important;
+            border-radius: 12px !important;
+            gap: 9px !important;
+          }
+          .hero-trust-icon { width: 34px !important; height: 34px !important; }
+        }
+
+        /* ── EXTRA SMALL (≤ 390px, iPhone SE / older Androids) ── */
+        @media (max-width: 390px) {
+          .hero-content { padding: 88px 14px 0 !important; }
+          .hero-headline { font-size: 30px !important; letter-spacing: -0.8px !important; }
+          .hero-sub { font-size: 13.5px !important; }
+          .hero-badge-text { max-width: calc(100vw - 88px) !important; }
+          .hero-badge { max-width: calc(100vw - 88px) !important; }
         }
       `}</style>
     </section>

@@ -67,7 +67,13 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       .finally(tryCommit);
 
     api.fetchContent()
-      .then((sc) => { serverContent = sc; })
+      .then((sc) => {
+        // ── Міграція: виправити старе значення "по Києву" → "по Києву та області" ──
+        if (sc?.hero?.headlineLine2 === "по Києву") {
+          sc = { ...sc, hero: { ...sc.hero, headlineLine2: "по Києву та області" } };
+        }
+        serverContent = sc;
+      })
       .catch((e) => {
         console.warn("[ContentContext] Сервер недоступний, використовується localStorage:", e);
       })
