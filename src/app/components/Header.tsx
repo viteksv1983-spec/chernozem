@@ -15,12 +15,13 @@ const NAV_SECTIONS = [
 ];
 
 // ── JS-based breakpoint hook (no Tailwind needed) ──────────────────────────
+// Hydration-safe: start with false (matches SSR where window is undefined).
+// useEffect corrects to real value after hydration.
 function useIsDesktop(bp = 768) {
-  const [desktop, setDesktop] = useState(
-    () => typeof window !== "undefined" && window.innerWidth >= bp
-  );
+  const [desktop, setDesktop] = useState(false);
   useEffect(() => {
     const fn = () => setDesktop(window.innerWidth >= bp);
+    fn(); // Apply real value immediately after hydration
     window.addEventListener("resize", fn, { passive: true });
     return () => window.removeEventListener("resize", fn);
   }, [bp]);

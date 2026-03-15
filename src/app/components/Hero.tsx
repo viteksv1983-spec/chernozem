@@ -24,49 +24,42 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
   const { hero, general } = content;
   const bgRef = useRef<HTMLImageElement>(null);
 
-  // ── Hero image URL — synchronous on repeat visits ──────────────────────
+  // ── Hero image URL ─────────────────────────────────────────────────────
   //
-  // Priority chain (first non-empty wins):
-  //   1. hero.imageOverride  — admin override (runtime, from Supabase content)
-  //   2. content.images.heroPhoto — uploaded photo URL (runtime, from Supabase)
-  //   3. getCachedHeroUrl()  — localStorage cache (synchronous, instant)
-  //   4. ""                  — no image, show CSS gradient only
+  // Hydration-safe: start with "" (matches SSR where no localStorage exists).
+  // After hydration, useEffect applies cached URL from localStorage
+  // (synchronous read), then content from Supabase when it arrives.
   //
-  // On the FIRST render (before ContentContext resolves Supabase data),
-  // options 1 & 2 are empty strings. Option 3 returns the URL cached from the
-  // previous visit → the <img> element is created on the very first React
-  // paint instead of waiting 300-600ms for the Supabase fetch.
-  //
-  // critical.ts reads the same localStorage key at module-parse time and
-  // injects <link rel="preload"> BEFORE React initialises, so the browser
-  // starts downloading the image in parallel with the JS bundle.
-  const [bgImage, setBgImage] = useState<string>(() => {
-    const fromContent = hero.imageOverride || content.images.heroPhoto || "";
-    return fromContent || getCachedHeroUrl() || "";
-  });
+  // critical.ts still injects <link rel="preload"> at module-parse time
+  // from the same localStorage key, so the browser starts downloading
+  // BEFORE React even renders. The image is already in flight when
+  // setBgImage fires.
+  const [bgImage, setBgImage] = useState<string>("");
 
-  // Once Supabase content arrives, sync bgImage and refresh the localStorage cache.
-  // React bails out of re-render automatically if the value hasn't changed.
+  // After hydration: apply cached URL immediately, then sync with content
   useEffect(() => {
-    const url = hero.imageOverride || content.images.heroPhoto || "";
-    if (!url) return;
-    setBgImage(url);
-    setCachedHeroUrl(url); // refresh TTL + persist for next page load
+    const fromContent = hero.imageOverride || content.images.heroPhoto || "";
+    const url = fromContent || getCachedHeroUrl() || "";
+    if (url) {
+      setBgImage(url);
+      if (fromContent) setCachedHeroUrl(url);
+    }
   }, [hero.imageOverride, content.images.heroPhoto]);
 
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== "undefined" ? window.innerWidth <= 768 : false
-  );
-  const [isSmall, setIsSmall] = useState(() =>
-    typeof window !== "undefined" ? window.innerWidth <= 480 : false
-  );
+
+  // ── Viewport detection ────────────────────────────────────────────────
+  // Hydration-safe: start with false (matches SSR where window is undefined).
+  // useEffect sets real values after hydration, before user can interact.
+  const [isMobile, setIsMobile] = useState(false);
+  const [isSmall, setIsSmall] = useState(false);
 
   useEffect(() => {
     const onResize = () => {
       setIsMobile(window.innerWidth <= 768);
       setIsSmall(window.innerWidth <= 480);
     };
+    onResize(); // Apply real values immediately after hydration
     window.addEventListener("resize", onResize, { passive: true });
     return () => window.removeEventListener("resize", onResize);
   }, []);

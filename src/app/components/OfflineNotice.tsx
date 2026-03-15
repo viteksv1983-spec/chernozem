@@ -4,11 +4,14 @@ import { motion, AnimatePresence } from "motion/react";
 const SANS = "'Inter', system-ui, sans-serif";
 
 export function OfflineNotice() {
-  const [offline, setOffline] = useState(() =>
-    typeof navigator !== "undefined" ? !navigator.onLine : false
-  );
+  // Hydration-safe: start with false (matches SSR where navigator is undefined).
+  // useEffect sets real value after hydration.
+  const [offline, setOffline] = useState(false);
 
   useEffect(() => {
+    // Apply real value after hydration
+    setOffline(!navigator.onLine);
+
     const goOffline = () => setOffline(true);
     const goOnline  = () => setOffline(false);
     window.addEventListener("offline", goOffline);
