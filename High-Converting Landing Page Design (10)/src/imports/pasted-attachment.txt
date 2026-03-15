@@ -1,0 +1,128 @@
+You are a senior product designer and visual designer working inside Figma.
+
+Your task is to improve the visual consistency of the landing page by selecting and styling truck images used in the delivery options section.
+
+The page sells black soil (chernozem) delivery in Kyiv and already has cards for different truck types:
+
+• ZIL
+• KAMAZ
+• MAZ
+• VOLVO
+
+Your job is to introduce realistic truck images while preserving the existing card layout.
+
+Important rules:
+
+Do NOT change the layout grid.
+Do NOT change card sizes significantly.
+Do NOT redesign the section.
+Only enhance it visually.
+
+---
+
+STEP 1 — SELECT APPROPRIATE TRUCK IMAGES
+
+Choose realistic dump truck images for each card.
+
+Truck mapping:
+
+ZIL — small dump truck (older compact truck)
+KAMAZ — medium dump truck (most common)
+MAZ — large dump truck
+VOLVO — heavy construction dump truck
+
+Image requirements:
+
+• realistic dump truck
+• 3/4 front angle preferred
+• high resolution
+• neutral background or construction environment
+• truck should be clearly visible
+• no text or watermarks
+
+---
+
+STEP 2 — CREATE A UNIFIED IMAGE STYLE
+
+All truck images must have a consistent visual style.
+
+Apply the same treatment to each image:
+
+• similar crop
+• consistent height
+• similar lighting feel
+• same border radius
+• same shadow style
+
+Image styling:
+
+• height around 160–200px
+• object-fit: cover
+• border-radius consistent with cards
+• subtle shadow
+• slight contrast increase if needed
+
+---
+
+STEP 3 — VISUAL HARMONY WITH THE WEBSITE
+
+The landing page has an earthy aesthetic:
+
+• dark soil textures
+• green eco accents
+• natural palette
+
+Ensure truck images do not look too bright or saturated.
+
+Apply subtle adjustments if needed:
+
+• reduce saturation slightly
+• slightly warm color temperature
+• increase contrast very lightly
+
+Goal: make the images blend naturally with the soil-themed design.
+
+---
+
+STEP 4 — CARD STRUCTURE
+
+Inside each truck card the structure must remain:
+
+[truck image]
+
+truck name
+
+capacity info
+
+price range
+
+short description
+
+CTA button
+
+Do not move these elements.
+
+---
+
+STEP 5 — VISUAL BALANCE
+
+Ensure:
+
+• all truck cards remain equal height
+• images align horizontally
+• spacing between cards stays consistent
+
+Images must enhance clarity but not dominate the card.
+
+---
+
+FINAL GOAL
+
+The truck section should feel:
+
+• professional
+• trustworthy
+• visually consistent
+• easy to understand
+
+It should look like a polished logistics landing page designed by a professional studio.

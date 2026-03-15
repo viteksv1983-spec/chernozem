@@ -1,0 +1,90 @@
+[build]
+  publish = "dist"
+  # Phase 1: client bundle  →  dist/
+  # Phase 2: SSR bundle     →  dist/_ssr/   (cleaned up by prerender script)
+  # Phase 3: static pre-render → injects HTML into dist/index.html
+  command = "pnpm build"
+
+# ── Canonical redirect: /site → / (301 permanent, SEO-safe) ──────────────────
+[[redirects]]
+  from   = "/site"
+  to     = "/"
+  status = 301
+  force  = true
+
+[[redirects]]
+  from   = "/site/"
+  to     = "/"
+  status = 301
+  force  = true
+
+# ── SPA routing ───────────────────────────────────────────────────────────────
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# ── Security headers (all routes) ────────────────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options        = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy        = "strict-origin-when-cross-origin"
+    Permissions-Policy     = "camera=(), microphone=(), geolocation=()"
+    # Prevent MIME type sniffing
+    X-DNS-Prefetch-Control = "on"
+
+# ── Hashed JS/CSS/font assets — immutable 1 year ─────────────────────────────
+# Vite appends content hash to filenames → safe to cache forever
+[[headers]]
+  for = "/assets/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ── HTML — always revalidate (new deploy = new app) ──────────────────────────
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# ── Sitemap / robots — short cache ───────────────────────────────────────────
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
