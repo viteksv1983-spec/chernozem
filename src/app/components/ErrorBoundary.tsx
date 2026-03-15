@@ -33,7 +33,10 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) return this.props.fallback;
+      // Check if fallback was explicitly provided (including null/false/0)
+      // Using 'in' operator so that <ErrorBoundary fallback={null}> renders nothing
+      // instead of the full error page.
+      if ('fallback' in this.props) return this.props.fallback;
 
       return (
         <div

@@ -163,6 +163,42 @@ export function SitePage() {
           background: "#0d1a0f",
         }}
       >
+        {/* Skip to main content — accessibility */}
+        <a
+          href="#hero"
+          style={{
+            position: "absolute",
+            left: "-9999px",
+            top: "auto",
+            width: "1px",
+            height: "1px",
+            overflow: "hidden",
+            zIndex: 9999,
+            padding: "12px 24px",
+            background: "#3a7a57",
+            color: "#fff",
+            fontWeight: 600,
+            borderRadius: "0 0 8px 0",
+            textDecoration: "none",
+            fontSize: "14px",
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.position = "fixed";
+            e.currentTarget.style.left = "0";
+            e.currentTarget.style.top = "0";
+            e.currentTarget.style.width = "auto";
+            e.currentTarget.style.height = "auto";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.position = "absolute";
+            e.currentTarget.style.left = "-9999px";
+            e.currentTarget.style.width = "1px";
+            e.currentTarget.style.height = "1px";
+          }}
+        >
+          Перейти до основного вмісту
+        </a>
+
         <OfflineNotice />
         <SeoHead />
         <Header onOrder={openOrder} />

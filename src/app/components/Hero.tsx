@@ -79,6 +79,9 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
   const ctaSecondary   = hero.ctaSecondary   || "Розрахувати вартість";
 
   useEffect(() => {
+    // Skip parallax on mobile — barely visible and wastes main-thread budget
+    if (isMobile) return;
+
     let rafId: number;
     const onScroll = () => {
       rafId = requestAnimationFrame(() => {
@@ -89,7 +92,7 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(rafId); };
-  }, []);
+  }, [isMobile]);
 
   const scrollToNext = () => {
     const el = document.getElementById("benefits");
@@ -533,6 +536,7 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
       <button
         onClick={scrollToNext}
         className="hero-scroll-indicator"
+        aria-label="Прокрутити до наступної секції"
         style={{
           position: "absolute", bottom: "108px", right: "40px",
           background: "none", border: "none", cursor: "pointer",

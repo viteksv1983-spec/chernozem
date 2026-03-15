@@ -120,9 +120,11 @@ export function Header({ onOrder }: { onOrder: () => void }) {
           }}
         >
           {/* ── Logo ── */}
-          <div
-            style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", flexShrink: 0 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          <a
+            href="#hero"
+            style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", flexShrink: 0, textDecoration: "none" }}
+            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            aria-label="КиївЧорнозем — на головну"
           >
             <motion.div
               whileHover={{ rotate: 12, scale: 1.08 }}
@@ -146,11 +148,11 @@ export function Header({ onOrder }: { onOrder: () => void }) {
                 ФОП Свєтличний С. О.
               </div>
             </div>
-          </div>
+          </a>
 
           {/* ── Desktop Nav ── */}
           {isDesktop && (
-            <nav style={{ display: "flex", gap: "36px" }}>
+            <nav aria-label="Навігація по секціях" style={{ display: "flex", gap: "36px" }}>
               {NAV_SECTIONS.slice(1).map((item) => {
                 const isActive = activeSection === item.id;
                 return (
@@ -249,6 +251,8 @@ export function Header({ onOrder }: { onOrder: () => void }) {
                 <motion.button
                   onClick={() => setMobileOpen(!mobileOpen)}
                   whileTap={{ scale: 0.88 }}
+                  aria-label={mobileOpen ? "Закрити меню" : "Відкрити меню"}
+                  aria-expanded={mobileOpen}
                   style={{
                     background: "none", border: "none", cursor: "pointer",
                     color: "#fff", padding: "4px",
