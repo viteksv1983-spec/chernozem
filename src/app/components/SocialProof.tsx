@@ -78,7 +78,7 @@ export function SocialProof({ onOrder }: SocialProofProps) {
                 marginBottom: "0",
               }}
             >
-              Нам довіряють понад {general.clientsCount} клієнтів
+              Що кажуть наші клієнти
             </h2>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px", flexShrink: 0 }}>
               <Stars count={5} />
@@ -116,9 +116,6 @@ export function SocialProof({ onOrder }: SocialProofProps) {
               onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.06)")}
               onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             />
-            <div style={{ position: "absolute", bottom: "16px", left: "16px", background: "rgba(20,12,7,0.80)", backdropFilter: "blur(6px)", borderRadius: "8px", padding: "8px 14px" }}>
-              <span style={{ fontFamily: SANS, fontSize: "13px", color: "#fff", fontWeight: 500 }}>Доставка самоскидом</span>
-            </div>
           </div>
           {/* Photo 2 — garden */}
           <div style={{ position: "relative", overflow: "hidden" }}>
@@ -302,7 +299,7 @@ export function SocialProof({ onOrder }: SocialProofProps) {
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
               <Leaf size={14} color="rgba(143,232,180,0.6)" />
               <span style={{ fontFamily: SANS, fontSize: "11px", fontWeight: 700, color: "rgba(143,232,180,0.6)", letterSpacing: "2px", textTransform: "uppercase" }}>
-                {general.clientsCount}+ задоволених клієнтів
+                Працюємо з 2015 року
               </span>
             </div>
             <div style={{ fontFamily: SERIF, fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 800, color: "#ffffff", lineHeight: 1.15, marginBottom: "10px" }}>
