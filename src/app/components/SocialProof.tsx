@@ -112,7 +112,7 @@ export function SocialProof({ onOrder }: SocialProofProps) {
             <img
               src={truckImg}
               alt={content.imageAlts.truckDelivery}
-              loading="lazy"
+              loading="eager"
               style={{
                 width: "100%",
                 height: "100%",
@@ -143,7 +143,7 @@ export function SocialProof({ onOrder }: SocialProofProps) {
             <img
               src={gardenImg}
               alt={content.imageAlts.gardenResult}
-              loading="lazy"
+              loading="eager"
               style={{
                 width: "100%",
                 height: "100%",
@@ -159,7 +159,7 @@ export function SocialProof({ onOrder }: SocialProofProps) {
             <img
               src={homeImg}
               alt={content.imageAlts.homeowner}
-              loading="lazy"
+              loading="eager"
               style={{
                 width: "100%",
                 height: "100%",

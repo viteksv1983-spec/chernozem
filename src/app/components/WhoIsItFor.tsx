@@ -112,7 +112,7 @@ export function WhoIsItFor({ onOrder }: WhoIsItForProps) {
                 <motion.img
                   src={content.images[SEG_META[seg.id].imgKey] || SEG_META[seg.id].fallback}
                   alt={content.imageAlts[SEG_META[seg.id].imgKey] || seg.label}
-                  loading="lazy"
+                  loading="eager"
                   whileHover={{ scale: 1.07 }}
                   transition={{ duration: 0.45, ease: "easeOut" }}
                   style={{

@@ -21,10 +21,10 @@
  *    (keeps admin panel fresh after every deploy)
  */
 
-const ASSETS_CACHE  = 'chernozem-assets-v1';
-const FONTS_CACHE   = 'chernozem-fonts-v1';
-const IMAGES_CACHE  = 'chernozem-images-v1';
-const HTML_CACHE    = 'chernozem-html-v1';
+const ASSETS_CACHE  = 'chernozem-assets-v2';
+const FONTS_CACHE   = 'chernozem-fonts-v2';
+const IMAGES_CACHE  = 'chernozem-images-v2';
+const HTML_CACHE    = 'chernozem-html-v2';
 
 const SECOND = 1;
 const MINUTE = 60 * SECOND;
@@ -119,9 +119,9 @@ async function cacheFirst(request, cacheName, maxAgeSeconds) {
 
   if (cached) {
     const stamp = cached.headers.get('sw-cached-at');
-    // No stamp = content-hashed asset → always fresh
+    // No stamp = content-hashed asset OR opaque response → always fresh
     if (!stamp) return cached;
-    // Stamped entry — check age
+    // Stamped CORS entry — check age
     const ageSeconds = (Date.now() - Number(stamp)) / 1000;
     if (ageSeconds < maxAgeSeconds) return cached;
     // Stale — fall through to network
@@ -129,25 +129,39 @@ async function cacheFirst(request, cacheName, maxAgeSeconds) {
 
   try {
     const response = await fetch(request);
-    if (response.ok || response.type === 'opaque') {
-      // For external origins (images, fonts) stamp the cache entry with a timestamp
-      const shouldStamp = !/^\/chernozem\/assets\//.test(new URL(request.url).pathname);
-      if (shouldStamp) {
+
+    if (response.type === 'opaque') {
+      // ── Opaque response (cross-origin image without crossorigin attribute) ──
+      // response.status === 0 for opaque responses.
+      // new Response(body, { status: 0 }) throws RangeError (must be 200–599).
+      // Solution: cache the opaque response as-is — NO header stamping.
+      // Without the 'sw-cached-at' stamp, subsequent cache hits return early
+      // via `if (!stamp) return cached` above → treated as always-fresh.
+      // This is safe: Supabase signed URLs are 10-year tokens; Unsplash URLs
+      // are stable CDN links. Cache will be cleared only when SW version bumps.
+      cache.put(request, response.clone());
+
+    } else if (response.ok) {
+      const isHashedAsset = /^\/chernozem\/assets\//.test(new URL(request.url).pathname);
+      if (isHashedAsset) {
+        // Content-hashed JS/CSS: no stamp needed, URL changes when content changes
+        cache.put(request, response.clone());
+      } else {
+        // CORS images/fonts: stamp with timestamp for TTL-based eviction
         const headers = new Headers(response.headers);
         headers.set('sw-cached-at', String(Date.now()));
         const stamped = new Response(await response.clone().arrayBuffer(), {
-          status: response.status,
+          status:     response.status,
           statusText: response.statusText,
           headers,
         });
         cache.put(request, stamped);
-      } else {
-        cache.put(request, response.clone());
       }
     }
+
     return response;
   } catch {
-    // Offline fallback — return stale cache if available
+    // Offline: return stale entry if available
     return cached || new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
   }
 }
