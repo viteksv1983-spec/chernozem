@@ -1,18 +1,28 @@
 {
-  "name": "КиівЧорнозем",
-  "short_name": "Чорнозем",
-  "description": "Чорнозем з доставкою по Києву та Київській області від виробника",
-  "start_url": "/",
+  "name": "КиївЧорнозем — доставка чорнозему по Києву",
+  "short_name": "КиївЧорнозем",
+  "description": "Чорнозем з доставкою по Києву та Київській області від виробника. Без посередників.",
+  "start_url": "/chernozem/",
+  "scope": "/chernozem/",
+  "id": "/chernozem/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#111c14",
   "theme_color": "#111c14",
   "lang": "uk",
+  "categories": ["business", "shopping"],
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/chernozem/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/chernozem/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
