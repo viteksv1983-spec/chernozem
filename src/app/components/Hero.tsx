@@ -5,6 +5,11 @@ import { Phone, Calculator, Truck, MapPin, CreditCard, Factory, ChevronDown } fr
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useContent } from "../contexts/ContentContext";
+import {
+  getCachedHeroUrl,
+  setCachedHeroUrl,
+  clearCachedHeroUrl,
+} from "../lib/heroImageCache";
 
 const SERIF = "'Playfair Display', Georgia, serif";
 const SANS  = "'Inter', system-ui, sans-serif";
@@ -18,6 +23,37 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
   const { content } = useContent();
   const { hero, general } = content;
   const bgRef = useRef<HTMLImageElement>(null);
+
+  // ── Hero image URL — synchronous on repeat visits ──────────────────────
+  //
+  // Priority chain (first non-empty wins):
+  //   1. hero.imageOverride  — admin override (runtime, from Supabase content)
+  //   2. content.images.heroPhoto — uploaded photo URL (runtime, from Supabase)
+  //   3. getCachedHeroUrl()  — localStorage cache (synchronous, instant)
+  //   4. ""                  — no image, show CSS gradient only
+  //
+  // On the FIRST render (before ContentContext resolves Supabase data),
+  // options 1 & 2 are empty strings. Option 3 returns the URL cached from the
+  // previous visit → the <img> element is created on the very first React
+  // paint instead of waiting 300-600ms for the Supabase fetch.
+  //
+  // critical.ts reads the same localStorage key at module-parse time and
+  // injects <link rel="preload"> BEFORE React initialises, so the browser
+  // starts downloading the image in parallel with the JS bundle.
+  const [bgImage, setBgImage] = useState<string>(() => {
+    const fromContent = hero.imageOverride || content.images.heroPhoto || "";
+    return fromContent || getCachedHeroUrl() || "";
+  });
+
+  // Once Supabase content arrives, sync bgImage and refresh the localStorage cache.
+  // React bails out of re-render automatically if the value hasn't changed.
+  useEffect(() => {
+    const url = hero.imageOverride || content.images.heroPhoto || "";
+    if (!url) return;
+    setBgImage(url);
+    setCachedHeroUrl(url); // refresh TTL + persist for next page load
+  }, [hero.imageOverride, content.images.heroPhoto]);
+
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth <= 768 : false
@@ -60,9 +96,6 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
-  // bgImage: только реальное фото из Supabase — никакого Unsplash fallback
-  const bgImage = hero.imageOverride || content.images.heroPhoto || "";
-
   return (
     <section
       id="hero"
@@ -92,6 +125,13 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             loading="eager"
             decoding="async"
             onLoad={() => setImgLoaded(true)}
+            onError={() => {
+              // URL is stale or unreachable — clear the localStorage cache
+              // so the next page load fetches a fresh URL from Supabase
+              // instead of trying the same broken URL again.
+              clearCachedHeroUrl();
+              setImgLoaded(false);
+            }}
             style={{
               position: "absolute",
               inset: "-10%",

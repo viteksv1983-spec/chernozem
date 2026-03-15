@@ -76,7 +76,7 @@ self.addEventListener('fetch', (e) => {
   // ── Images: Unsplash + Supabase Storage (CacheFirst, 7 days) ────────────
   if (
     /^https:\/\/images\.unsplash\.com\//.test(url.href) ||
-    /^https:\/\/[a-z]+\.supabase\.co\/storage\//.test(url.href)
+    /^https:\/\/[a-z0-9]+\.supabase\.co\/storage\//.test(url.href)
   ) {
     e.respondWith(cacheFirst(request, IMAGES_CACHE, 7 * DAY));
     return;
