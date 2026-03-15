@@ -210,30 +210,40 @@ export function SitePage() {
           </LazySection>
         </main>
 
-        {/* Footer + SEO text — lazy but no anchor needed */}
-        <Suspense fallback={null}>
-          <SeoTextSection />
-          <Footer onPrivacy={() => setPrivacyOpen(true)} />
-        </Suspense>
+        {/* Footer + SEO text — lazy but no anchor needed.
+            Wrapped in ErrorBoundary so a chunk load failure renders
+            nothing rather than replacing the whole page with an error screen. */}
+        <ErrorBoundary fallback={null}>
+          <Suspense fallback={null}>
+            <SeoTextSection />
+            <Footer onPrivacy={() => setPrivacyOpen(true)} />
+          </Suspense>
+        </ErrorBoundary>
 
         {/* Modals — lazy, rendered only when opened */}
-        <Suspense fallback={null}>
-          <OrderModal
-            isOpen={modalOpen}
-            onClose={() => setModalOpen(false)}
-            isCalc={isCalc}
-            prefillTons={prefillTons}
-          />
-        </Suspense>
+        <ErrorBoundary fallback={null}>
+          <Suspense fallback={null}>
+            <OrderModal
+              isOpen={modalOpen}
+              onClose={() => setModalOpen(false)}
+              isCalc={isCalc}
+              prefillTons={prefillTons}
+            />
+          </Suspense>
+        </ErrorBoundary>
 
-        <Suspense fallback={null}>
-          <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
-        </Suspense>
+        <ErrorBoundary fallback={null}>
+          <Suspense fallback={null}>
+            <PrivacyModal isOpen={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+          </Suspense>
+        </ErrorBoundary>
 
         {/* ScrollToTop — lazy, appears only after 400px scroll */}
-        <Suspense fallback={null}>
-          <ScrollToTop />
-        </Suspense>
+        <ErrorBoundary fallback={null}>
+          <Suspense fallback={null}>
+            <ScrollToTop />
+          </Suspense>
+        </ErrorBoundary>
 
         <style>{`
           html, body { margin: 0; padding: 0; background: #0d1a0f; }
