@@ -199,9 +199,10 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             {ctaPrimary}
           </button>
 
-          {/* Secondary + Phone — side-by-side on mobile via hero-cta-secondary-row grid,
-              display:contents on desktop so both are direct flex-children of .hero-cta-row */}
-          <div className="hero-cta-secondary-row" style={{ display: "contents" }}>
+          {/* Secondary + Phone — Fragment: both are direct flex-children on desktop.
+              On mobile, parent .hero-cta-row becomes CSS Grid (see <style>),
+              primary spans both cols, these two each get 1fr — no wrapper div. */}
+          <>
 
             {/* Secondary */}
             <button
@@ -247,7 +248,7 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
               <span className="hero-btn-label">{general.phone}</span>
             </a>
 
-          </div>
+          </>
         </motion.div>
       </div>
 
@@ -393,44 +394,34 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             margin-bottom: 28px !important;
           }
 
-          /* ── CTA Row: column, NO WRAP, full-width items ──
-             flex-wrap: nowrap !important overrides the inline
-             flexWrap="wrap" that caused buttons to spill right  */
+          /* ── CTA Row on mobile: switch to CSS Grid.
+             Grid completely replaces flex behaviour — ignores the inline
+             flexWrap="wrap" that was causing buttons to spill right.
+             Primary spans both columns (full width).
+             Secondary + Phone each get 1fr (exactly 50%). */
           .hero-cta-row {
-            display: flex !important;
-            flex-direction: column !important;
-            flex-wrap: nowrap !important;
-            align-items: stretch !important;
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            grid-template-rows: auto auto !important;
+            gap: 10px !important;
             width: 100% !important;
             box-sizing: border-box !important;
-            gap: 10px !important;
             margin-bottom: 32px !important;
           }
-
-          /* Primary: large green pill */
           .hero-cta-primary {
-            width: 100% !important;
+            grid-column: 1 / -1 !important;
             box-sizing: border-box !important;
-            min-width: 0 !important;
+            width: 100% !important;
             font-size: 17px !important;
             padding: 20px 24px !important;
             border-radius: 16px !important;
             justify-content: center !important;
           }
-
-          /* Secondary & Phone: side-by-side via inner grid */
-          .hero-cta-secondary-row {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 10px !important;
-            width: 100% !important;
-          }
           .hero-cta-secondary,
           .hero-cta-phone {
-            width: 100% !important;
             box-sizing: border-box !important;
+            width: 100% !important;
             min-width: 0 !important;
-            font-size: 13px !important;
             padding: 0 !important;
             border-radius: 13px !important;
             justify-content: center !important;
@@ -441,11 +432,12 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           }
           .hero-cta-secondary .hero-btn-label,
           .hero-cta-phone .hero-btn-label {
-            font-size: 11.5px !important;
-            line-height: 1.3 !important;
+            font-size: 11px !important;
+            line-height: 1.25 !important;
             text-align: center !important;
-            padding: 0 8px !important;
+            padding: 0 6px !important;
             word-break: break-word !important;
+            overflow: hidden !important;
           }
 
           /* Trust strip: 2 × 2 dark cards */
@@ -494,10 +486,9 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           }
           .hero-sub { font-size: 14px !important; margin-bottom: 22px !important; }
 
-          .hero-cta-row { gap: 9px !important; margin-bottom: 28px !important; }
+          .hero-cta-row { gap: 8px !important; margin-bottom: 28px !important; }
           .hero-cta-primary { font-size: 16px !important; padding: 19px 20px !important; border-radius: 14px !important; }
           .hero-cta-secondary, .hero-cta-phone { height: 60px !important; border-radius: 12px !important; }
-          .hero-cta-secondary-row { gap: 9px !important; }
 
           .hero-trust-strip { padding: 12px 14px 0 !important; gap: 8px !important; }
           .hero-trust-item { padding: 13px 12px !important; border-radius: 12px !important; gap: 9px !important; }
