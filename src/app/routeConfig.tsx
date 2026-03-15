@@ -13,9 +13,8 @@ export const routeConfig = [
     Component: SitePage,
   },
   {
-    // Legacy /site path — 301 redirect (also handled at Netlify edge level)
     path: "/site",
-    element: <Navigate to="/" replace />,
+    Component: SitePage,
   },
   {
     path: "/admin",

@@ -5,24 +5,7 @@ import { useContent } from "../contexts/ContentContext";
 const SERIF = "'Playfair Display', Georgia, serif";
 const SANS  = "'Inter', system-ui, sans-serif";
 
-// Icon map by step index
 const STEP_ICONS = [MessageSquare, ClipboardList, Truck, CreditCard];
-
-const stepCardVariants = {
-  hidden: { opacity: 0, y: 32 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, delay: i * 0.15, ease: "easeOut" },
-  }),
-  hover: {
-    y: -6,
-    background: "rgba(255,255,255,0.055)",
-    borderColor: "rgba(143,232,180,0.22)",
-    boxShadow: "0 16px 56px rgba(0,0,0,0.30), 0 0 0 1px rgba(143,232,180,0.10)",
-    transition: { duration: 0.28, ease: "easeOut" },
-  },
-};
 
 interface HowItWorksProps {
   onOrder: () => void;
@@ -31,208 +14,120 @@ interface HowItWorksProps {
 export function HowItWorks({ onOrder }: HowItWorksProps) {
   const { content } = useContent();
   const steps = content.howItWorks;
+
   return (
     <section
       id="how-it-works"
       className="howitworks-section"
-      style={{
-        background: "#140c07",
-        padding: "96px 24px",
-        position: "relative",
-        overflow: "hidden",
-      }}
+      style={{ background: "#0f1a11", padding: "120px 32px", position: "relative", overflow: "hidden" }}
     >
-      {/* Background: solid dark colour — no external HTTP request */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "#140c07",
-          opacity: 0.06,
-        }}
-      />
+      {/* Ambient glow */}
+      <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: "800px", height: "400px", background: "radial-gradient(ellipse, rgba(47,140,80,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
 
       <div style={{ maxWidth: "1200px", margin: "0 auto", position: "relative" }}>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          style={{ textAlign: "center", marginBottom: "72px" }}
+          transition={{ duration: 0.55 }}
+          style={{ textAlign: "center", marginBottom: "88px" }}
         >
-          <div
-            style={{
-              fontFamily: SANS,
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "#8fe8b4",
-              letterSpacing: "2px",
-              textTransform: "uppercase",
-              marginBottom: "14px",
-            }}
-          >
-            Всього 4 прості кроки
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+            <div style={{ width: "28px", height: "1px", background: "rgba(143,232,180,0.4)" }} />
+            <span style={{ fontFamily: SANS, fontSize: "11px", fontWeight: 700, color: "rgba(143,232,180,0.7)", letterSpacing: "2.5px", textTransform: "uppercase" }}>
+              Всього 4 прості кроки
+            </span>
+            <div style={{ width: "28px", height: "1px", background: "rgba(143,232,180,0.4)" }} />
           </div>
-          <h2
-            style={{
-              fontFamily: SERIF,
-              fontSize: "clamp(28px, 4vw, 42px)",
-              fontWeight: 700,
-              color: "#ffffff",
-              letterSpacing: "-0.8px",
-              lineHeight: 1.15,
-              marginBottom: "16px",
-            }}
-          >
+          <h2 style={{
+            fontFamily: SERIF, fontSize: "clamp(30px, 4.5vw, 48px)",
+            fontWeight: 800, color: "#ffffff",
+            letterSpacing: "-1px", lineHeight: 1.1, marginBottom: "18px",
+          }}>
             Як це працює
           </h2>
-          <p
-            style={{
-              fontFamily: SANS,
-              fontSize: "17px",
-              color: "rgba(255,255,255,0.65)",
-              maxWidth: "480px",
-              margin: "0 auto",
-              lineHeight: 1.6,
-            }}
-          >
+          <p style={{ fontFamily: SANS, fontSize: "17px", color: "rgba(255,255,255,0.52)", maxWidth: "460px", margin: "0 auto", lineHeight: 1.65 }}>
             Від дзвінка до готової ділянки — швидко, чітко, без зайвих питань
           </p>
         </motion.div>
 
         {/* Steps */}
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "24px",
-            position: "relative",
-          }}
+          className="steps-grid"
+          style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1px", position: "relative" }}
         >
+          {/* Connector line */}
+          <div
+            className="steps-connector"
+            style={{
+              position: "absolute", top: "52px", left: "calc(12.5% + 24px)", right: "calc(12.5% + 24px)",
+              height: "1px",
+              background: "linear-gradient(90deg, transparent, rgba(63,174,108,0.25) 10%, rgba(63,174,108,0.25) 90%, transparent)",
+              zIndex: 0,
+            }}
+          />
+
           {steps.map((step, i) => {
             const Icon = STEP_ICONS[i] ?? MessageSquare;
-            const isLast = i === steps.length - 1;
             return (
               <motion.div
                 key={step.num}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                whileHover="hover"
+                initial={{ opacity: 0, y: 32 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                variants={stepCardVariants}
+                transition={{ duration: 0.5, delay: i * 0.12, ease: "easeOut" }}
                 style={{
-                  padding: "36px 28px 32px",
-                  position: "relative",
-                  borderRadius: "16px",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
+                  padding: "40px 28px 36px",
+                  position: "relative", zIndex: 1,
+                  borderRadius: "0",
                   cursor: "default",
-                  display: "flex",
-                  flexDirection: "column",
+                  transition: "background 0.28s ease",
                 }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.background = "rgba(255,255,255,0.03)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
               >
-                {/* Connector line */}
-                {!isLast && (
-                  <div
-                    className="hidden md:block"
-                    style={{
-                      position: "absolute",
-                      top: "48px",
-                      right: "-13px",
-                      width: "26px",
-                      height: "1px",
-                      background: "rgba(143,232,180,0.18)",
-                      zIndex: 2,
-                    }}
-                  />
-                )}
-
-                {/* Top row: step number + icon */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: "28px",
-                  }}
-                >
-                  {/* Step number — primary anchor */}
-                  <div
-                    style={{
-                      fontFamily: SERIF,
-                      fontSize: "38px",
-                      fontWeight: 800,
-                      color: "#3FAE6C",
-                      lineHeight: 1,
-                      letterSpacing: "-1px",
-                    }}
-                  >
-                    {step.num}
+                {/* Step indicator */}
+                <div style={{ marginBottom: "32px", display: "flex", alignItems: "center", gap: "0" }}>
+                  <div style={{
+                    width: "48px", height: "48px", borderRadius: "50%",
+                    border: "1px solid rgba(63,174,108,0.35)",
+                    background: "rgba(63,174,108,0.08)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0,
+                    position: "relative", zIndex: 2,
+                  }}>
+                    <span style={{ fontFamily: SERIF, fontSize: "18px", fontWeight: 800, color: "#3FAE6C", lineHeight: 1 }}>
+                      {step.num}
+                    </span>
                   </div>
-
-                  {/* Icon — secondary, no box */}
-                  <Icon
-                    size={22}
-                    color="rgba(143,232,180,0.45)"
-                    strokeWidth={1.5}
-                  />
                 </div>
 
-                <h3
-                  style={{
-                    fontFamily: SERIF,
-                    fontSize: "20px",
-                    fontWeight: 700,
-                    color: "#ffffff",
-                    marginBottom: "12px",
-                    lineHeight: 1.25,
-                  }}
-                >
+                {/* Icon */}
+                <div style={{ marginBottom: "18px" }}>
+                  <Icon size={22} color="rgba(143,232,180,0.38)" strokeWidth={1.4} />
+                </div>
+
+                <h3 style={{
+                  fontFamily: SERIF, fontSize: "19px", fontWeight: 700,
+                  color: "#ffffff", marginBottom: "12px", lineHeight: 1.25,
+                }}>
                   {step.title}
                 </h3>
 
-                <p
-                  style={{
-                    fontFamily: SANS,
-                    fontSize: "14px",
-                    color: "rgba(255,255,255,0.88)",
-                    lineHeight: 1.7,
-                    marginBottom: "24px",
-                    flex: 1,
-                  }}
-                >
+                <p style={{ fontFamily: SANS, fontSize: "14px", color: "rgba(255,255,255,0.55)", lineHeight: 1.72, marginBottom: "20px" }}>
                   {step.desc}
                 </p>
 
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    background: "rgba(58, 122, 87, 0.15)",
-                    borderRadius: "100px",
-                    padding: "5px 12px",
-                    alignSelf: "flex-start",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "5px",
-                      height: "5px",
-                      borderRadius: "50%",
-                      background: "#8fe8b4",
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontFamily: SANS,
-                      fontSize: "12px",
-                      color: "#8fe8b4",
-                      fontWeight: 500,
-                    }}
-                  >
+                <div style={{
+                  display: "inline-flex", alignItems: "center", gap: "8px",
+                  borderTop: "1px solid rgba(255,255,255,0.07)",
+                  paddingTop: "16px",
+                  width: "100%",
+                }}>
+                  <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#4fdb8c", flexShrink: 0 }} />
+                  <span style={{ fontFamily: SANS, fontSize: "12px", color: "rgba(143,232,180,0.65)", fontWeight: 500 }}>
                     {step.note}
                   </span>
                 </div>
@@ -247,21 +142,9 @@ export function HowItWorks({ onOrder }: HowItWorksProps) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          style={{
-            textAlign: "center",
-            marginTop: "60px",
-            paddingTop: "48px",
-            borderTop: "1px solid rgba(255,255,255,0.08)",
-          }}
+          style={{ textAlign: "center", marginTop: "72px", paddingTop: "56px", borderTop: "1px solid rgba(255,255,255,0.06)" }}
         >
-          <p
-            style={{
-              fontFamily: SANS,
-              fontSize: "17px",
-              color: "rgba(255,255,255,0.65)",
-              marginBottom: "24px",
-            }}
-          >
+          <p style={{ fontFamily: SANS, fontSize: "16px", color: "rgba(255,255,255,0.50)", marginBottom: "28px", letterSpacing: "0.1px" }}>
             Все просто. Залиште заявку прямо зараз — і ґрунт буде вже завтра.
           </p>
           <motion.button
@@ -269,18 +152,12 @@ export function HowItWorks({ onOrder }: HowItWorksProps) {
             whileHover={{ scale: 1.04, y: -2 }}
             whileTap={{ scale: 0.97 }}
             transition={{ type: "spring", stiffness: 380, damping: 20 }}
-            className="howitworks-cta-btn"
             style={{
-              fontFamily: SANS,
-              fontSize: "16px",
-              fontWeight: 700,
+              fontFamily: SANS, fontSize: "15px", fontWeight: 700,
               background: "linear-gradient(135deg, #3FAE6C 0%, #2d7a50 100%)",
-              color: "#ffffff",
-              border: "none",
-              borderRadius: "10px",
-              padding: "16px 48px",
-              cursor: "pointer",
-              boxShadow: "0 4px 24px rgba(58,122,87,0.45)",
+              color: "#ffffff", border: "none", borderRadius: "12px",
+              padding: "16px 52px", cursor: "pointer",
+              boxShadow: "0 6px 28px rgba(58,122,87,0.50)",
               letterSpacing: "0.2px",
             }}
           >
@@ -288,6 +165,20 @@ export function HowItWorks({ onOrder }: HowItWorksProps) {
           </motion.button>
         </motion.div>
       </div>
+
+      <style>{`
+        @media (max-width: 900px) {
+          .steps-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .steps-connector { display: none !important; }
+        }
+        @media (max-width: 768px) {
+          .howitworks-section { padding: 72px 20px 100px !important; }
+        }
+        @media (max-width: 540px) {
+          .steps-grid { grid-template-columns: 1fr !important; }
+          .howitworks-section { padding: 60px 16px 100px !important; }
+        }
+      `}</style>
     </section>
   );
 }

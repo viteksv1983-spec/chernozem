@@ -39,30 +39,58 @@ export function saveIntegrations(settings: IntegrationSettings): void {
 // ─────────────────────────────────────────────────────────────
 let gaInjected = false;
 
+/**
+ * Defer GA/GTM injection until the user's first interaction.
+ *
+ * WHY: GTM/GA4 script is ~70-100KB of synchronous JS that runs a
+ * Long Task on the main thread → directly adds to TBT.
+ * By loading it after `pointerdown / touchstart / scroll / keydown`
+ * it does NOT count toward TBT at all (measured during load, not runtime).
+ *
+ * Fallback: inject unconditionally after 5s for bounce/passive users
+ * so analytics still captures sessions that never interact.
+ */
 export function injectGoogleAnalytics(gaId: string): void {
   if (!gaId || gaInjected) return;
   if (typeof document === "undefined") return;
 
-  // Видаляємо старий тег якщо є
-  const existing = document.getElementById("ga-script");
-  if (existing) existing.remove();
+  const doInject = () => {
+    if (gaInjected) return;
+    gaInjected = true;
 
-  const script1 = document.createElement("script");
-  script1.id = "ga-script";
-  script1.async = true;
-  script1.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
-  document.head.appendChild(script1);
+    // Remove all deferred listeners immediately
+    DEFERRED_EVENTS.forEach((evt) =>
+      window.removeEventListener(evt, doInject)
+    );
+    clearTimeout(fallbackTimer);
 
-  const script2 = document.createElement("script");
-  script2.id = "ga-init";
-  script2.innerHTML = `
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '${gaId}');
-  `;
-  document.head.appendChild(script2);
-  gaInjected = true;
+    const existing = document.getElementById("ga-script");
+    if (existing) existing.remove();
+
+    const script1 = document.createElement("script");
+    script1.id = "ga-script";
+    script1.async = true;
+    script1.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+    document.head.appendChild(script1);
+
+    const script2 = document.createElement("script");
+    script2.id = "ga-init";
+    // Minified to reduce inline script parse cost
+    script2.innerHTML =
+      `window.dataLayer=window.dataLayer||[];` +
+      `function gtag(){dataLayer.push(arguments);}` +
+      `gtag('js',new Date());gtag('config','${gaId}');`;
+    document.head.appendChild(script2);
+  };
+
+  // Wait for first interaction — avoids ANY TBT penalty from GA
+  const DEFERRED_EVENTS = ["pointerdown", "touchstart", "scroll", "keydown"] as const;
+  DEFERRED_EVENTS.forEach((evt) =>
+    window.addEventListener(evt, doInject, { once: true, passive: true })
+  );
+
+  // Fallback: inject after 5s regardless (captures passive/bounce visitors)
+  const fallbackTimer = setTimeout(doInject, 5000);
 }
 
 /** GA4 event tracking helper */

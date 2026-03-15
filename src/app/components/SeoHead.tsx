@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { useContent } from "../contexts/ContentContext";
 
 const GOOGLE_FONTS_URL =
-  "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Inter:wght@400;500;600;700&display=swap";
+  "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600;1,700;1,800&family=Inter:wght@400;500;600;700&display=swap";
 
 const FALLBACK_CANONICAL = "https://chernozem.com.ua/";
 const GOOGLE_BUSINESS_URL = "https://www.google.com/maps/search/КиівЧорнозем+Перевальна+17+Київ";
@@ -79,14 +79,25 @@ export function SeoHead() {
     setMeta('meta[name="robots"]',     "content", seo.robots || "index, follow");
 
     // ── fonts ─────────────────────────────────────────────────────────────
-    setLink("preconnect", { rel: "preconnect", href: "https://fonts.googleapis.com" }, "fonts-preconnect");
-    setLink("preconnect", { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "anonymous" }, "fonts-gstatic");
-    setLink("stylesheet", { rel: "stylesheet", href: GOOGLE_FONTS_URL }, "google-fonts");
+    // Font preconnect + stylesheet are injected at module-parse time by
+    // /src/app/lib/critical.ts (before React renders).
+    // We only add them here as a safety fallback if they weren't injected.
+    if (!document.querySelector("[data-critical-injected]")) {
+      setLink("preconnect", { rel: "preconnect", href: "https://fonts.googleapis.com" }, "fonts-preconnect");
+      setLink("preconnect", { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "anonymous" }, "fonts-gstatic");
+      setLink("stylesheet", { rel: "stylesheet", href: GOOGLE_FONTS_URL }, "google-fonts");
+    }
 
     // ── DNS prefetch ──────────────────────────────────────────────────────
     setLink("dns-prefetch", { rel: "dns-prefetch", href: "https://www.googletagmanager.com" }, "dns-gtm");
     setLink("dns-prefetch", { rel: "dns-prefetch", href: "https://www.google-analytics.com" }, "dns-ga");
     setLink("dns-prefetch", { rel: "dns-prefetch", href: "https://api.telegram.org" }, "dns-tg");
+
+    // Hero image CDN — preconnect so TCP/TLS is open before first request.
+    // critical.ts does this at parse time; this is the safety fallback.
+    setLink("preconnect", { rel: "preconnect", href: "https://images.unsplash.com" }, "preconnect-unsplash");
+    // Supabase storage — used for uploaded hero/truck images
+    setLink("preconnect", { rel: "preconnect", href: "https://iimoqcdnnehpbqcnasou.supabase.co" }, "preconnect-supabase");
 
     // ── canonical & hreflang ──────────────────────────────────────────────
     setLink("canonical",  { rel: "canonical", href: canonical }, "canonical");

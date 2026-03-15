@@ -706,9 +706,11 @@ export function Calculator({ onOrder }: CalculatorProps) {
 
       <style>{`
         @media (max-width: 768px) {
-          .calc-grid {
-            grid-template-columns: 1fr !important;
-          }
+          .calc-grid { grid-template-columns: 1fr !important; }
+          #calculator { padding: 64px 20px 100px !important; }
+        }
+        @media (max-width: 480px) {
+          #calculator { padding: 56px 16px 100px !important; }
         }
       `}</style>
     </section>

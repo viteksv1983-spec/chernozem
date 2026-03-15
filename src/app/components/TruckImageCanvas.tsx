@@ -12,8 +12,8 @@ interface TruckImageCanvasProps {
 export function TruckImageCanvas({
   src,
   alt,
-  height = 200,
-  padding = 10,
+  height = 150,
+  padding = 8,
   whiteThreshold = 238,
   filter = "contrast(1.12) saturate(1.10) brightness(1.02) drop-shadow(0 4px 14px rgba(0,0,0,0.18))",
 }: TruckImageCanvasProps) {
@@ -31,16 +31,24 @@ export function TruckImageCanvas({
     srcH: number,
     threshold: number
   ): { x: number; y: number; w: number; h: number } {
+    // ── Downscale to max 200px wide for analysis ──────────────────────────
+    // Full resolution: 1080px wide → ~580k pixel iterations (blocking!)
+    // Downscaled 200px: ~13k iterations → 44× faster, same bounding-box accuracy.
+    const MAX_DETECT_W = 200;
+    const scaleDown = Math.min(1, MAX_DETECT_W / srcW);
+    const dw = Math.max(1, Math.round(srcW * scaleDown));
+    const dh = Math.max(1, Math.round(srcH * scaleDown));
+
     const tmp = document.createElement("canvas");
-    tmp.width = srcW;
-    tmp.height = srcH;
+    tmp.width = dw;
+    tmp.height = dh;
     const tCtx = tmp.getContext("2d", { willReadFrequently: true })!;
-    tCtx.drawImage(imgEl, 0, 0, srcW, srcH);
-    const { data } = tCtx.getImageData(0, 0, srcW, srcH);
-    let minX = srcW, maxX = 0, minY = srcH, maxY = 0;
-    for (let y = 0; y < srcH; y++) {
-      for (let x = 0; x < srcW; x++) {
-        const i = (y * srcW + x) * 4;
+    tCtx.drawImage(imgEl, 0, 0, dw, dh);
+    const { data } = tCtx.getImageData(0, 0, dw, dh);
+    let minX = dw, maxX = 0, minY = dh, maxY = 0;
+    for (let y = 0; y < dh; y++) {
+      for (let x = 0; x < dw; x++) {
+        const i = (y * dw + x) * 4;
         const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
         if (a < 15 || (r >= threshold && g >= threshold && b >= threshold)) continue;
         if (x < minX) minX = x;
@@ -50,19 +58,24 @@ export function TruckImageCanvas({
       }
     }
     if (minX > maxX || minY > maxY) return { x: 0, y: 0, w: srcW, h: srcH };
-    return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+
+    // Scale detected bounds back to original image resolution
+    return {
+      x: Math.round(minX / scaleDown),
+      y: Math.round(minY / scaleDown),
+      w: Math.round((maxX - minX + 1) / scaleDown),
+      h: Math.round((maxY - minY + 1) / scaleDown),
+    };
   }
 
-  // Paint the already-loaded image onto the canvas — no image loading, no flicker
   function paint(canvasEl: HTMLCanvasElement, img: HTMLImageElement) {
     const bounds = boundsRef.current;
     if (!bounds) return;
 
-    // Use the natural (un-scaled) container width to avoid reading scaled size
     const parent = canvasEl.parentElement;
     if (!parent) return;
 
-    // getBoundingClientRect includes CSS transform scale — use offsetWidth instead
+    // offsetWidth is unaffected by CSS transforms on ancestors
     const cssW = parent.offsetWidth || 280;
     const cssH = height;
 
@@ -87,15 +100,22 @@ export function TruckImageCanvas({
     const bw = Math.min(img.naturalWidth - bx, w + px * 2);
     const bh = Math.min(img.naturalHeight - by, h + px * 2);
 
-    const breathe = 8;
-    const scale = Math.min((cssW - breathe * 2) / bw, (cssH - breathe * 2) / bh);
+    // ── Scale to fill: truck fills the container tightly ──────────────────
+    // breathe=4 gives just 4px breathing room on each side.
+    // Math.min ensures the truck always fits within the canvas (no clipping).
+    // For landscape truck images (typical) width-scale is the limiting factor,
+    // so trucks fill the full card width — exactly like the design target.
+    const breathe = 4;
+    const scale = Math.min(
+      (cssW - breathe * 2) / bw,
+      (cssH - breathe * 2) / bh
+    );
+
     const drawW = bw * scale;
     const drawH = bh * scale;
     const drawX = (cssW - drawW) / 2;
     const drawY = (cssH - drawH) / 2;
 
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, cssW, cssH);
     ctx.drawImage(img, bx, by, bw, bh, drawX, drawY, drawW, drawH);
@@ -111,23 +131,38 @@ export function TruckImageCanvas({
     boundsRef.current = null;
 
     const img = new Image();
+    img.crossOrigin = "anonymous";
     img.onload = () => {
-      try {
-        boundsRef.current = detectBounds(img, img.naturalWidth, img.naturalHeight, whiteThreshold);
-      } catch {
-        boundsRef.current = { x: 0, y: 0, w: img.naturalWidth, h: img.naturalHeight };
-      }
-      imgCacheRef.current = img;
-      if (canvasRef.current) {
-        paint(canvasRef.current, img);
-        setLoaded(true);
+      // ── Offload pixel detection to idle time ────────────────────────────
+      // detectBounds loops over ~580k pixels for a 1080px image.
+      // Running it synchronously in onload blocks the main thread and spikes TBT.
+      // requestIdleCallback defers it until the browser is idle (≤2s timeout).
+      // The truck cards are below the fold, so by the time the user sees them
+      // the idle callback will have already fired.
+      const process = () => {
+        try {
+          boundsRef.current = detectBounds(img, img.naturalWidth, img.naturalHeight, whiteThreshold);
+        } catch {
+          boundsRef.current = { x: 0, y: 0, w: img.naturalWidth, h: img.naturalHeight };
+        }
+        imgCacheRef.current = img;
+        if (canvasRef.current) {
+          paint(canvasRef.current, img);
+          setLoaded(true);
+        }
+      };
+
+      if ("requestIdleCallback" in window) {
+        requestIdleCallback(process, { timeout: 2000 });
+      } else {
+        // Safari fallback: use a 0ms timeout to yield to the event loop
+        setTimeout(process, 0);
       }
     };
     img.onerror = () => setError(true);
     img.src = src;
 
-    // ResizeObserver: repaint only — no image reload, no flicker
-    // Debounced so rapid scale animations don't spam repaints
+    // Repaint on container resize (e.g. responsive layout changes)
     const observer = new ResizeObserver(() => {
       if (resizeTimerRef.current) clearTimeout(resizeTimerRef.current);
       resizeTimerRef.current = setTimeout(() => {

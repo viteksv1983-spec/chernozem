@@ -86,12 +86,12 @@ export function Header({ onOrder }: { onOrder: () => void }) {
           left: 0,
           right: 0,
           zIndex: 100,
-          transition: "background 0.35s ease, box-shadow 0.35s ease",
-          background: scrolled ? "rgba(10,16,11,0.97)" : "rgba(10,16,11,0.55)",
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
+          transition: "background 0.4s ease, box-shadow 0.4s ease, border-bottom 0.4s ease",
+          background: scrolled ? "rgba(8,13,9,0.96)" : "transparent",
+          backdropFilter: scrolled ? "blur(20px)" : "none",
+          WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
           boxShadow: scrolled
-            ? "0 1px 0 rgba(255,255,255,0.05), 0 4px 32px rgba(0,0,0,0.40)"
+            ? "0 1px 0 rgba(255,255,255,0.04), 0 4px 40px rgba(0,0,0,0.45)"
             : "none",
         }}
       >
@@ -112,36 +112,37 @@ export function Header({ onOrder }: { onOrder: () => void }) {
           style={{
             maxWidth: "1200px",
             margin: "0 auto",
-            padding: "0 20px",
+            padding: "0 32px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            height: "64px",
+            height: "68px",
           }}
         >
           {/* ── Logo ── */}
           <div
-            style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", flexShrink: 0 }}
+            style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", flexShrink: 0 }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
             <motion.div
-              whileHover={{ rotate: 12, scale: 1.1 }}
+              whileHover={{ rotate: 12, scale: 1.08 }}
               transition={{ type: "spring", stiffness: 400, damping: 15 }}
               style={{
-                width: "36px", height: "36px",
+                width: "34px", height: "34px",
                 borderRadius: "8px",
-                background: "#3a7a57",
+                background: "linear-gradient(135deg, #3a7a57 0%, #2a5a40 100%)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 flexShrink: 0,
+                boxShadow: "0 2px 10px rgba(58,122,87,0.40)",
               }}
             >
-              <Leaf size={18} color="#fff" />
+              <Leaf size={16} color="#fff" />
             </motion.div>
             <div>
-              <div style={{ fontFamily: SERIF, fontSize: isDesktop ? "20px" : "17px", fontWeight: 700, color: "#fff", letterSpacing: "-0.3px", lineHeight: 1.1 }}>
+              <div style={{ fontFamily: SERIF, fontSize: isDesktop ? "19px" : "16px", fontWeight: 700, color: "#fff", letterSpacing: "-0.3px", lineHeight: 1.1 }}>
                 КиївЧорнозем
               </div>
-              <div style={{ fontFamily: SANS, fontSize: "10px", color: "rgba(255,255,255,0.5)", letterSpacing: "1px", textTransform: "uppercase", lineHeight: 1 }}>
+              <div style={{ fontFamily: SANS, fontSize: "10px", color: "rgba(255,255,255,0.38)", letterSpacing: "1.2px", textTransform: "uppercase", lineHeight: 1 }}>
                 ФОП Свєтличний С. О.
               </div>
             </div>
@@ -149,7 +150,7 @@ export function Header({ onOrder }: { onOrder: () => void }) {
 
           {/* ── Desktop Nav ── */}
           {isDesktop && (
-            <nav style={{ display: "flex", gap: "32px" }}>
+            <nav style={{ display: "flex", gap: "36px" }}>
               {NAV_SECTIONS.slice(1).map((item) => {
                 const isActive = activeSection === item.id;
                 return (
@@ -158,13 +159,13 @@ export function Header({ onOrder }: { onOrder: () => void }) {
                     onClick={() => scrollTo(item.id)}
                     style={{
                       fontFamily: SANS, fontSize: "14px", fontWeight: 500,
-                      color: isActive ? "#8fe8b4" : "rgba(255,255,255,0.85)",
+                      color: isActive ? "#8fe8b4" : "rgba(255,255,255,0.78)",
                       background: "none", border: "none", cursor: "pointer",
-                      letterSpacing: "0.25px", position: "relative",
+                      letterSpacing: "0.2px", position: "relative",
                       padding: "4px 0", transition: "color 0.2s",
                     }}
                     onMouseEnter={(e) => !isActive && (e.currentTarget.style.color = "#fff")}
-                    onMouseLeave={(e) => !isActive && (e.currentTarget.style.color = "rgba(255,255,255,0.85)")}
+                    onMouseLeave={(e) => !isActive && (e.currentTarget.style.color = "rgba(255,255,255,0.78)")}
                   >
                     {item.label}
                     {isActive && (
@@ -172,7 +173,7 @@ export function Header({ onOrder }: { onOrder: () => void }) {
                         layoutId="nav-underline"
                         style={{
                           position: "absolute", bottom: "-2px", left: 0, right: 0,
-                          height: "2px",
+                          height: "1.5px",
                           background: "linear-gradient(90deg, #3FAE6C, #8fe8b4)",
                           borderRadius: "2px",
                         }}
@@ -186,7 +187,7 @@ export function Header({ onOrder }: { onOrder: () => void }) {
           )}
 
           {/* ── Right side ── */}
-          <div style={{ display: "flex", alignItems: "center", gap: "14px", flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", flexShrink: 0 }}>
             {/* Desktop: phone text + CTA */}
             {isDesktop && (
               <>
@@ -194,30 +195,31 @@ export function Header({ onOrder }: { onOrder: () => void }) {
                   href={PHONE_HREF}
                   style={{
                     display: "flex", alignItems: "center", gap: "7px",
-                    fontFamily: SANS, fontSize: "15px", fontWeight: 600,
-                    color: "rgba(255,255,255,0.88)", textDecoration: "none",
+                    fontFamily: SANS, fontSize: "14px", fontWeight: 500,
+                    color: "rgba(255,255,255,0.75)", textDecoration: "none",
                     transition: "color 0.2s",
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "#8fe8b4")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.88)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
                 >
-                  <Phone size={14} color="#5ac88a" />
+                  <Phone size={13} color="#4fdb8c" strokeWidth={2} />
                   {PHONE}
                 </a>
-                <div style={{ width: "1px", height: "22px", background: "rgba(255,255,255,0.12)" }} />
+                <div style={{ width: "1px", height: "18px", background: "rgba(255,255,255,0.10)" }} />
                 <motion.button
                   onClick={onOrder}
                   whileHover={{ scale: 1.04, y: -1 }}
                   whileTap={{ scale: 0.96 }}
                   transition={{ type: "spring", stiffness: 400, damping: 18 }}
                   style={{
-                    fontFamily: SANS, fontSize: "14px", fontWeight: 700,
+                    fontFamily: SANS, fontSize: "13px", fontWeight: 700,
                     background: "linear-gradient(135deg, #3FAE6C 0%, #2a8a4e 100%)",
                     color: "#fff",
-                    border: "1px solid rgba(143,232,180,0.25)",
+                    border: "none",
                     borderRadius: "8px", padding: "10px 22px",
                     cursor: "pointer", whiteSpace: "nowrap",
-                    boxShadow: "0 2px 14px rgba(63,174,108,0.45), inset 0 1px 0 rgba(255,255,255,0.12)",
+                    boxShadow: "0 3px 16px rgba(63,174,108,0.50), inset 0 1px 0 rgba(255,255,255,0.14)",
+                    letterSpacing: "0.1px",
                   }}
                 >
                   Замовити

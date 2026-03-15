@@ -788,10 +788,9 @@ export function AdminPage() {
     e.target.value = "";
     setImporting(true);
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const raw = JSON.parse(reader.result as string);
-        // Validate: must have _version >= 1 (envelope format) or be plain SiteContent
         if (raw._version && typeof raw._version !== "number") {
           setToast("⚠ Невірний формат файлу: поле _version має бути числом");
           setImporting(false);
@@ -802,24 +801,61 @@ export function AdminPage() {
           setImporting(false);
           return;
         }
-        // Support { _version:1|2, content, integrations } and legacy plain SiteContent
         const rawContent      = raw._version ? raw.content      : raw;
         const rawIntegrations = raw._version ? raw.integrations : null;
-        // Basic structure validation
         if (!rawContent || typeof rawContent !== "object") {
           setToast("⚠ Пошкоджений файл: відсутнє поле content");
           setImporting(false);
           return;
         }
         const merged = safeMerge(rawContent as SiteContent);
+
+        // ── Крок 1: base64 фото → Supabase Storage ──────────────────────
+        // Без цього base64 (~3 МБ) не влізе в KV Store, і телефон не побачить фото
+        const adminPass = api.getAdminPassword();
+        if (adminPass) {
+          const imageKeys = Object.keys(merged.images) as Array<keyof typeof merged.images>;
+          const base64Keys = imageKeys.filter((k) => {
+            const v = merged.images[k];
+            return typeof v === "string" && (v as string).startsWith("data:");
+          });
+          if (base64Keys.length > 0) {
+            setToast(`⏳ Завантажуємо ${base64Keys.length} фото в хмару…`);
+            let done = 0;
+            await Promise.allSettled(
+              base64Keys.map(async (key) => {
+                const val = merged.images[key] as string;
+                try {
+                  const mimeMatch = val.match(/^data:([^;]+);base64,/);
+                  const mimeType  = mimeMatch?.[1] ?? "image/jpeg";
+                  const url = await api.uploadImage(key as string, val, mimeType);
+                  (merged.images as Record<string, string>)[key as string] = url;
+                  done++;
+                  setToast(`⏳ Фото в хмарі: ${done}/${base64Keys.length}…`);
+                } catch (uploadErr) {
+                  console.warn(`[Import] Не вдалося завантажити ${String(key)}:`, uploadErr);
+                }
+              })
+            );
+          }
+        }
+
+        // ── Крок 2: зберегти контент із URL (вже без base64) ────────────
         setDraft(merged);
         updateContent(() => merged);
         if (rawIntegrations) {
           setIntg(rawIntegrations);
           saveIntegrations(rawIntegrations);
         }
-        setToast("✓ Резервну копію відновлено! Всі фото на місці.");
-      } catch {
+        try {
+          await api.saveContent(merged);
+          setToast("✓ Готово! Всі фото в хмарі — тепер видно на всіх пристроях.");
+        } catch (saveErr) {
+          console.error("[Import] saveContent error:", saveErr);
+          setToast("⚠ Фото завантажено, але помилка збереження тексту. Натисни «Зберегти» ще раз.");
+        }
+      } catch (err) {
+        console.error("[Import] Parse error:", err);
         setToast("⚠ Помилка: невірний формат файлу");
       } finally {
         setImporting(false);
@@ -848,10 +884,6 @@ export function AdminPage() {
   const setImg    = (key: keyof SiteContent["images"], val: string) => setD("images", { ...draft.images, [key]: val });
   const setImgAlt = (key: keyof ImageAlts, val: string) => setDraft((d) => ({ ...d, imageAlts: { ...d.imageAlts, [key]: val } }));
 
-  if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
-
-  const currentTabLabel = TABS.find(t => t.id === tab)?.label ?? "";
-
   // Prevent admin page from appearing in search results (noindex via useEffect)
   useEffect(() => {
     document.title = "Адмін-панель | КиївЧорнозем";
@@ -866,6 +898,10 @@ export function AdminPage() {
       if (meta) meta.setAttribute("content", "index, follow");
     };
   }, []);
+
+  if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
+
+  const currentTabLabel = TABS.find(t => t.id === tab)?.label ?? "";
 
   return (
     <>

@@ -166,13 +166,14 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
             }}
           />
 
-          {/* Centering wrapper */}
-          <div style={{
+          {/* ── Centering wrapper: desktop = centered, mobile = bottom sheet ── */}
+          <div className="modal-outer" style={{
             position: "fixed", inset: 0, zIndex: 301,
             display: "flex", alignItems: "center", justifyContent: "center",
             padding: "16px", pointerEvents: "none",
           }}>
             <motion.div
+              className="modal-sheet"
               initial={{ opacity: 0, scale: 0.93, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.93, y: 20 }}
@@ -187,21 +188,30 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
               {/* Close btn */}
               <button
                 onClick={handleClose}
+                className="modal-close-btn"
                 style={{
-                  position: "absolute", top: "20px", right: "20px",
+                  position: "absolute", top: "16px", right: "16px",
                   width: "36px", height: "36px", borderRadius: "50%",
                   background: "#f0ece4", border: "none", cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1,
+                  flexShrink: 0,
                 }}
               >
                 <X size={16} color="#5a4535" />
               </button>
 
-              <div style={{ padding: "40px 40px 36px" }}>
+              {/* Drag handle — mobile only */}
+              <div className="modal-drag-handle" style={{
+                display: "none", justifyContent: "center", paddingTop: "12px", paddingBottom: "4px",
+              }}>
+                <div style={{ width: "40px", height: "4px", borderRadius: "2px", background: "#e0d8c8" }} />
+              </div>
+
+              <div className="modal-body" style={{ padding: "40px 40px 36px" }}>
                 {!submitted ? (
                   <>
                     {/* ── Header ── */}
-                    <div style={{ marginBottom: "26px" }}>
+                    <div style={{ marginBottom: "26px", paddingRight: "28px" }}>
                       <div style={{
                         fontFamily: SANS, fontSize: "12px", fontWeight: 600,
                         color: "#3a7a57", letterSpacing: "2px", textTransform: "uppercase",
@@ -239,9 +249,9 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
                               borderRadius: "10px", border: "1.5px solid #e0d8c8",
                               background: "#faf7f2", fontFamily: SANS, fontSize: "15px",
                               color: "#140c07", outline: "none", appearance: "none", cursor: "pointer",
+                              boxSizing: "border-box",
                             }}
                           >
-                            {/* ✅ Dynamic labels from admin panel */}
                             <option value="bulk">{bulkLabel}</option>
                             <option value="bags">{bagsLabel}</option>
                           </select>
@@ -293,11 +303,12 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
                         </div>
                       </div>
 
-                      {/* ── Truck recommendation ── */}
-                      <div style={{
+                      {/* ── Truck recommendation (mobile-optimised) ── */}
+                      <div className="truck-card" style={{
                         background: "#f0faf5", border: "1.5px solid #b0ddc8",
-                        borderRadius: "12px", padding: "14px 18px", marginBottom: "12px",
-                        display: "flex", alignItems: "center", gap: "14px",
+                        borderRadius: "12px", padding: "14px 16px", marginBottom: "12px",
+                        display: "flex", alignItems: "center", gap: "12px",
+                        overflow: "hidden",
                       }}>
                         <div style={{
                           width: "44px", height: "44px", borderRadius: "10px",
@@ -306,34 +317,35 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
                         }}>
                           <Truck size={20} color="#8fe8b4" strokeWidth={1.6} />
                         </div>
-                        <div style={{ flex: 1 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{
-                            fontFamily: SANS, fontSize: "11px", fontWeight: 600,
+                            fontFamily: SANS, fontSize: "10px", fontWeight: 600,
                             color: "#5a9a75", letterSpacing: "1px",
-                            textTransform: "uppercase", marginBottom: "3px",
+                            textTransform: "uppercase", marginBottom: "2px",
                           }}>
                             Рекомендований самоскид
                           </div>
-                          <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-                            <span style={{ fontFamily: SERIF, fontSize: "20px", fontWeight: 700, color: "#1e3d2a" }}>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: "6px", flexWrap: "wrap" }}>
+                            <span style={{ fontFamily: SERIF, fontSize: "18px", fontWeight: 700, color: "#1e3d2a" }}>
                               {truck.name}
                             </span>
-                            <span style={{ fontFamily: SANS, fontSize: "13px", color: "#5a9a75" }}>
+                            <span style={{ fontFamily: SANS, fontSize: "12px", color: "#5a9a75" }}>
                               {truck.capacity}
                             </span>
                           </div>
                           {truck.trips > 1 && (
-                            <div style={{ fontFamily: SANS, fontSize: "12px", color: "#7aaa8a", marginTop: "2px" }}>
+                            <div style={{ fontFamily: SANS, fontSize: "11px", color: "#7aaa8a", marginTop: "1px" }}>
                               {truck.trips} рейси
                             </div>
                           )}
                         </div>
-                        <div style={{ textAlign: "right", flexShrink: 0 }}>
-                          <div style={{ fontFamily: SANS, fontSize: "11px", color: "#5a9a75", marginBottom: "3px" }}>
+                        {/* Delivery price — wraps on narrow screens */}
+                        <div className="truck-price" style={{ textAlign: "right", flexShrink: 0 }}>
+                          <div style={{ fontFamily: SANS, fontSize: "10px", color: "#5a9a75", marginBottom: "2px" }}>
                             Доставка
                           </div>
                           <div style={{
-                            fontFamily: SERIF, fontSize: "16px", fontWeight: 700,
+                            fontFamily: SERIF, fontSize: "15px", fontWeight: 700,
                             color: "#1e3d2a", whiteSpace: "nowrap",
                           }}>
                             {truck.priceMin.toLocaleString()}–{truck.priceMax.toLocaleString()} грн
@@ -344,48 +356,43 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
                       {/* ── Price breakdown ── */}
                       <div style={{
                         background: "#1e3d2a", borderRadius: "12px",
-                        padding: "16px 20px", marginBottom: "24px",
+                        padding: "16px 18px", marginBottom: "24px",
                       }}>
-                        {/* Soil cost row */}
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                          <span style={{ fontFamily: SANS, fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>
-                            {/* ✅ dynamic price in label */}
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", gap: "8px" }}>
+                          <span style={{ fontFamily: SANS, fontSize: "13px", color: "rgba(255,255,255,0.6)", minWidth: 0 }}>
                             {soilLineLabel}
                           </span>
-                          <span style={{ fontFamily: SANS, fontSize: "13px", fontWeight: 600, color: "#8fe8b4" }}>
+                          <span style={{ fontFamily: SANS, fontSize: "13px", fontWeight: 600, color: "#8fe8b4", flexShrink: 0 }}>
                             {soilCost.toLocaleString()} грн
                           </span>
                         </div>
-                        {/* Weight row (bags only) */}
                         {!isBulk && (
-                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", gap: "8px" }}>
                             <span style={{ fontFamily: SANS, fontSize: "13px", color: "rgba(255,255,255,0.45)" }}>
                               Загальна вага мішків
                             </span>
-                            <span style={{ fontFamily: SANS, fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>
+                            <span style={{ fontFamily: SANS, fontSize: "13px", color: "rgba(255,255,255,0.6)", flexShrink: 0 }}>
                               {formatWeight(bagWeightKg)}
                             </span>
                           </div>
                         )}
-                        {/* Delivery row */}
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-                          <span style={{ fontFamily: SANS, fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", gap: "8px" }}>
+                          <span style={{ fontFamily: SANS, fontSize: "13px", color: "rgba(255,255,255,0.6)", minWidth: 0 }}>
                             Доставка ({truck.name}{truck.trips > 1 ? `, ${truck.trips} рейси` : ""})
                           </span>
-                          <span style={{ fontFamily: SANS, fontSize: "13px", fontWeight: 600, color: "#8fe8b4" }}>
+                          <span style={{ fontFamily: SANS, fontSize: "13px", fontWeight: 600, color: "#8fe8b4", flexShrink: 0 }}>
                             {truck.priceMin.toLocaleString()}–{truck.priceMax.toLocaleString()} грн
                           </span>
                         </div>
                         <div style={{ height: "1px", background: "rgba(255,255,255,0.12)", marginBottom: "12px" }} />
-                        {/* Total row */}
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                          <span style={{ fontFamily: SANS, fontSize: "13px", color: "rgba(255,255,255,0.5)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "8px" }}>
+                          <span style={{ fontFamily: SANS, fontSize: "13px", color: "rgba(255,255,255,0.5)", flexShrink: 0 }}>
                             Разом орієнтовно
                           </span>
                           <div style={{ textAlign: "right" }}>
-                            <div style={{
-                              fontFamily: SERIF, fontSize: "26px", fontWeight: 800,
-                              color: "#ffffff", lineHeight: 1,
+                            <div className="modal-total-price" style={{
+                              fontFamily: SERIF, fontWeight: 800,
+                              color: "#ffffff", lineHeight: 1.1,
                             }}>
                               {totalMin.toLocaleString()}–{totalMax.toLocaleString()}
                               <span style={{
@@ -453,23 +460,25 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
                       <button
                         type="submit" disabled={sending}
                         style={{
-                          width: "100%", padding: "17px",
-                          background: sending ? "#6aaa85" : "#3a7a57",
-                          color: "#ffffff", border: "none", borderRadius: "12px",
-                          fontFamily: SANS, fontSize: "16px", fontWeight: 600,
+                          width: "100%", padding: "18px",
+                          background: sending ? "#6aaa85" : "linear-gradient(135deg, #3cb96e 0%, #24894d 100%)",
+                          color: "#ffffff", border: "none", borderRadius: "14px",
+                          fontFamily: SANS, fontSize: "17px", fontWeight: 700,
                           cursor: sending ? "not-allowed" : "pointer",
-                          transition: "all 0.2s", boxShadow: "0 4px 16px rgba(58,122,87,0.35)",
+                          transition: "all 0.2s",
+                          boxShadow: sending ? "none" : "0 6px 24px rgba(36,137,77,0.42)",
+                          letterSpacing: "0.1px",
                         }}
                         onMouseEnter={(e) => {
                           if (!sending) {
-                            e.currentTarget.style.background = "#2d6045";
-                            e.currentTarget.style.transform = "translateY(-1px)";
+                            e.currentTarget.style.transform = "translateY(-2px)";
+                            e.currentTarget.style.boxShadow = "0 10px 32px rgba(36,137,77,0.52)";
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!sending) {
-                            e.currentTarget.style.background = "#3a7a57";
-                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.transform = "";
+                            e.currentTarget.style.boxShadow = "0 6px 24px rgba(36,137,77,0.42)";
                           }
                         }}
                       >
@@ -589,6 +598,32 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
               </div>
             </motion.div>
           </div>
+
+          <style>{`
+            /* ── Mobile: bottom sheet ── */
+            @media (max-width: 640px) {
+              .modal-outer {
+                align-items: flex-end !important;
+                padding: 0 !important;
+              }
+              .modal-sheet {
+                max-width: 100% !important;
+                border-radius: 24px 24px 0 0 !important;
+                max-height: 94vh !important;
+                /* Slide up from bottom */
+              }
+              .modal-drag-handle { display: flex !important; }
+              .modal-body { padding: 16px 20px 32px !important; }
+              .modal-close-btn { top: 14px !important; right: 14px !important; }
+              .modal-total-price { font-size: 22px !important; }
+              .truck-price { max-width: 110px; }
+            }
+            @media (max-width: 400px) {
+              .modal-body { padding: 12px 16px 28px !important; }
+              .truck-price { max-width: 90px; }
+              .truck-price div:last-child { font-size: 13px !important; }
+            }
+          `}</style>
         </>
       )}
     </AnimatePresence>

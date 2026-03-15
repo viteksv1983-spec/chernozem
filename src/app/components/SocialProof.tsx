@@ -48,7 +48,7 @@ export function SocialProof({ onOrder }: SocialProofProps) {
       className="reviews-section"
       style={{
         background: "#ffffff",
-        padding: "96px 24px",
+        padding: "112px 32px",
       }}
     >
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
@@ -58,40 +58,37 @@ export function SocialProof({ onOrder }: SocialProofProps) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          style={{ textAlign: "center", marginBottom: "64px" }}
+          style={{ marginBottom: "72px" }}
         >
-          <div
-            style={{
-              fontFamily: SANS,
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "#3a7a57",
-              letterSpacing: "2px",
-              textTransform: "uppercase",
-              marginBottom: "14px",
-            }}
-          >
-            Довіра клієнтів
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+            <div style={{ width: "28px", height: "2px", background: "#3a7a57" }} />
+            <span style={{ fontFamily: SANS, fontSize: "11px", fontWeight: 700, color: "#3a7a57", letterSpacing: "2.5px", textTransform: "uppercase" }}>
+              Довіра клієнтів
+            </span>
           </div>
-          <h2
-            style={{
-              fontFamily: SERIF,
-              fontSize: "clamp(28px, 4vw, 42px)",
-              fontWeight: 700,
-              color: "#140c07",
-              letterSpacing: "-0.8px",
-              lineHeight: 1.15,
-              marginBottom: "16px",
-            }}
-          >
-            Нам довіряють понад {general.clientsCount} клієнтів
-          </h2>
-          <div style={{ display: "flex", justifyContent: "center", gap: "4px", marginBottom: "16px" }}>
-            <Stars count={5} />
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "24px" }}>
+            <h2
+              style={{
+                fontFamily: SERIF,
+                fontSize: "clamp(30px, 4.5vw, 48px)",
+                fontWeight: 800,
+                color: "#140c07",
+                letterSpacing: "-1px",
+                lineHeight: 1.1,
+                marginBottom: "0",
+              }}
+            >
+              Нам довіряють понад {general.clientsCount} клієнтів
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px", flexShrink: 0 }}>
+              <div style={{ display: "flex", gap: "3px" }}>
+                <Stars count={5} />
+              </div>
+              <p style={{ fontFamily: SANS, fontSize: "13px", color: "#9a8878", whiteSpace: "nowrap" }}>
+                4.9 / 5 · на основі 847 відгуків
+              </p>
+            </div>
           </div>
-          <p style={{ fontFamily: SANS, fontSize: "14px", color: "#8a7565" }}>
-            Середня оцінка: 4.9 / 5 на основі 847 відгуків
-          </p>
         </motion.div>
 
         {/* Photo gallery strip — magazine mosaic layout */}
@@ -177,12 +174,12 @@ export function SocialProof({ onOrder }: SocialProofProps) {
           </div>
         </motion.div>
 
-        {/* Reviews — whileHover lift + shadow */}
+        {/* Reviews */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gap: "32px",
+            gap: "24px",
           }}
         >
           {reviews.map((r, i) => (
@@ -190,91 +187,61 @@ export function SocialProof({ onOrder }: SocialProofProps) {
               key={r.name}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -6, boxShadow: "0 20px 56px rgba(0,0,0,0.10)" }}
+              whileHover={{ y: -5, boxShadow: "0 24px 64px rgba(0,0,0,0.09)" }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
               style={{
-                background: "#f5efe4",
-                borderRadius: "16px",
-                padding: "32px",
+                background: "#f8f4ee",
+                borderRadius: "20px",
+                padding: "36px",
                 position: "relative",
-                border: "1px solid #ede5d8",
+                border: "1px solid #ece4d6",
                 boxShadow: "0 2px 16px rgba(0,0,0,0.04)",
                 cursor: "default",
+                transition: "box-shadow 0.3s ease, transform 0.3s ease",
               }}
             >
-              {/* Quote icon */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: "24px",
-                  right: "24px",
-                  opacity: 0.12,
-                }}
-              >
-                <Quote size={40} color="#140c07" fill="#140c07" />
+              {/* Quote mark */}
+              <div style={{ position: "absolute", top: "24px", right: "28px", opacity: 0.08 }}>
+                <Quote size={44} color="#140c07" fill="#140c07" />
               </div>
 
               {/* Rating */}
-              <div style={{ marginBottom: "18px" }}>
+              <div style={{ marginBottom: "20px" }}>
                 <Stars count={r.rating} />
               </div>
 
               {/* Text */}
-              <p
-                style={{
-                  fontFamily: SANS,
-                  fontSize: "15px",
-                  color: "#3a2a1a",
-                  lineHeight: 1.75,
-                  marginBottom: "28px",
-                  fontStyle: "italic",
-                }}
-              >
+              <p style={{ fontFamily: SANS, fontSize: "15px", color: "#3a2a1a", lineHeight: 1.78, marginBottom: "28px", fontStyle: "italic" }}>
                 "{r.text}"
               </p>
 
               {/* Separator */}
-              <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", marginBottom: "20px" }} />
+              <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", marginBottom: "20px" }} />
 
               {/* Author */}
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                {/* Avatar: photo if uploaded, else initials */}
+              <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                 {r.photoOverride ? (
-                  <div style={{ width: "44px", height: "44px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, border: "2px solid #e8dfd4" }}>
+                  <div style={{ width: "46px", height: "46px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, border: "2px solid #e8dfd4" }}>
                     <img src={r.photoOverride} alt={r.name} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </div>
                 ) : (
-                  <div style={{ width: "44px", height: "44px", borderRadius: "50%", background: "linear-gradient(135deg, #3a7a57, #2d6045)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <div style={{ width: "46px", height: "46px", borderRadius: "50%", background: "linear-gradient(135deg, #3a7a57, #2d6045)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <span style={{ fontFamily: SANS, fontSize: "15px", fontWeight: 700, color: "#fff" }}>{r.initials}</span>
                   </div>
                 )}
-                <div>
-                  <div style={{ fontFamily: SANS, fontSize: "15px", fontWeight: 600, color: "#140c07", marginBottom: "2px" }}>
-                    {r.name}
-                  </div>
-                  <div style={{ fontFamily: SANS, fontSize: "13px", color: "#8a7565" }}>
-                    {r.role}
-                  </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: SANS, fontSize: "14px", fontWeight: 700, color: "#140c07", marginBottom: "2px" }}>{r.name}</div>
+                  <div style={{ fontFamily: SANS, fontSize: "12px", color: "#9a8878" }}>{r.role}</div>
                 </div>
-                <div style={{ marginLeft: "auto", fontFamily: SANS, fontSize: "12px", color: "#b0a090" }}>
-                  {r.date}
-                </div>
+                <div style={{ fontFamily: SANS, fontSize: "11px", color: "#c0b0a0", letterSpacing: "0.3px" }}>{r.date}</div>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Trust badges — staggered entrance */}
-        <div
-          style={{
-            marginTop: "48px",
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: "12px",
-          }}
-        >
+        {/* Trust badges */}
+        <div style={{ marginTop: "48px", display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px" }}>
           {[
             "✅ Паспорт якості на ґрунт",
             "✅ Офіційна накладна",
@@ -284,21 +251,17 @@ export function SocialProof({ onOrder }: SocialProofProps) {
           ].map((badge, i) => (
             <motion.div
               key={badge}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -2, boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}
               viewport={{ once: true }}
-              transition={{ duration: 0.35, delay: i * 0.07 }}
+              transition={{ duration: 0.35, delay: i * 0.06 }}
               style={{
-                background: "#f0ece4",
-                border: "1px solid #e0d8c8",
+                background: "#f4efe7",
+                border: "1px solid #e4dace",
                 borderRadius: "100px",
-                padding: "8px 18px",
-                fontFamily: SANS,
-                fontSize: "13px",
-                color: "#4a3a2a",
-                fontWeight: 500,
-                cursor: "default",
+                padding: "9px 20px",
+                fontFamily: SANS, fontSize: "13px", color: "#4a3a2a",
+                fontWeight: 500, cursor: "default",
               }}
             >
               {badge}
@@ -306,101 +269,63 @@ export function SocialProof({ onOrder }: SocialProofProps) {
           ))}
         </div>
 
-        {/* Conversion CTA — after social proof = highest trust moment */}
+        {/* CTA block */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.45 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
           className="sp-cta-block"
           style={{
             marginTop: "56px",
-            background: "linear-gradient(135deg, #1e3d2a 0%, #162e1f 100%)",
-            borderRadius: "20px",
-            padding: "40px 48px",
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "28px",
-            boxShadow: "0 12px 48px rgba(30,61,42,0.22)",
+            background: "linear-gradient(135deg, #1a3525 0%, #111f18 100%)",
+            borderRadius: "24px",
+            padding: "48px 56px",
+            display: "flex", flexWrap: "wrap",
+            alignItems: "center", justifyContent: "space-between",
+            gap: "32px",
+            boxShadow: "0 16px 56px rgba(20,50,35,0.28)",
+            border: "1px solid rgba(143,232,180,0.08)",
           }}
         >
           <div style={{ flex: 1, minWidth: "240px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-              <Leaf size={16} color="#8fe8b4" />
-              <span
-                style={{
-                  fontFamily: SANS,
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  color: "#8fe8b4",
-                  letterSpacing: "1.5px",
-                  textTransform: "uppercase",
-                }}
-              >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
+              <Leaf size={14} color="rgba(143,232,180,0.6)" />
+              <span style={{ fontFamily: SANS, fontSize: "11px", fontWeight: 700, color: "rgba(143,232,180,0.6)", letterSpacing: "2px", textTransform: "uppercase" }}>
                 {general.clientsCount}+ задоволених клієнтів
               </span>
             </div>
-            <div
-              style={{
-                fontFamily: SERIF,
-                fontSize: "clamp(20px, 3vw, 26px)",
-                fontWeight: 700,
-                color: "#ffffff",
-                lineHeight: 1.2,
-                marginBottom: "8px",
-              }}
-            >
+            <div style={{ fontFamily: SERIF, fontSize: "clamp(20px, 3vw, 28px)", fontWeight: 800, color: "#ffffff", lineHeight: 1.15, marginBottom: "10px" }}>
               Приєднуйтесь до тих, хто вже обрав якість
             </div>
-            <p style={{ fontFamily: SANS, fontSize: "15px", color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>
+            <p style={{ fontFamily: SANS, fontSize: "15px", color: "rgba(255,255,255,0.50)", lineHeight: 1.65 }}>
               Замовте чорнозем сьогодні — доставимо завтра або в зручний для вас день.
             </p>
           </div>
-          <div className="sp-cta-actions" style={{ display: "flex", flexDirection: "column", gap: "12px", flexShrink: 0 }}>
+          <div className="sp-cta-actions" style={{ display: "flex", flexDirection: "column", gap: "10px", flexShrink: 0 }}>
             <motion.button
               onClick={onOrder}
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 380, damping: 20 }}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                fontFamily: SANS,
-                fontSize: "16px",
-                fontWeight: 700,
+                display: "flex", alignItems: "center", gap: "10px",
+                fontFamily: SANS, fontSize: "15px", fontWeight: 700,
                 background: "linear-gradient(135deg, #3FAE6C 0%, #2a9158 100%)",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "12px",
-                padding: "16px 36px",
-                cursor: "pointer",
-                boxShadow: "0 6px 24px rgba(63,174,108,0.40)",
+                color: "#ffffff", border: "none", borderRadius: "12px",
+                padding: "16px 36px", cursor: "pointer",
+                boxShadow: "0 6px 28px rgba(63,174,108,0.45)",
                 whiteSpace: "nowrap",
               }}
             >
               Замовити чорнозем
-              <ArrowRight size={17} />
+              <ArrowRight size={16} />
             </motion.button>
             <a
               href={`tel:${general.phoneRaw}`}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                fontFamily: SANS,
-                fontSize: "14px",
-                fontWeight: 500,
-                color: "rgba(255,255,255,0.60)",
-                textDecoration: "none",
-                textAlign: "center",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.95)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.60)")}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", fontFamily: SANS, fontSize: "13px", fontWeight: 500, color: "rgba(255,255,255,0.45)", textDecoration: "none", textAlign: "center", transition: "color 0.2s" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.85)")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.45)")}
             >
               або зателефонуйте: {general.phone}
             </a>
@@ -410,23 +335,13 @@ export function SocialProof({ onOrder }: SocialProofProps) {
 
       <style>{`
         @media (max-width: 640px) {
-          .sp-photo-grid {
-            grid-template-columns: 1fr !important;
-            height: 220px !important;
-          }
-          .sp-photo-grid > div:nth-child(2),
-          .sp-photo-grid > div:nth-child(3) {
-            display: none !important;
-          }
+          .sp-photo-grid { grid-template-columns: 1fr !important; height: 220px !important; }
+          .sp-photo-grid > div:nth-child(2), .sp-photo-grid > div:nth-child(3) { display: none !important; }
+          .sp-cta-block { padding: 32px 24px !important; }
         }
         @media (max-width: 900px) {
-          .sp-photo-grid {
-            grid-template-columns: 1fr 1fr !important;
-            height: 240px !important;
-          }
-          .sp-photo-grid > div:nth-child(3) {
-            display: none !important;
-          }
+          .sp-photo-grid { grid-template-columns: 1fr 1fr !important; height: 240px !important; }
+          .sp-photo-grid > div:nth-child(3) { display: none !important; }
         }
       `}</style>
     </section>

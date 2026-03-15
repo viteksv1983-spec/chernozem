@@ -59,14 +59,15 @@ function TruckCard({ d, i, isSelected, onSelect, onOrder, imgSrc }: {
       onClick={onSelect}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      whileHover={{ scale: 1.03, y: -5, transition: { type: "spring", stiffness: 320, damping: 24 } }}
+      whileHover={{ y: -6, transition: { type: "spring", stiffness: 320, damping: 24 } }}
       style={{
         borderRadius: "14px",
-        border: isSelected
-          ? d.highlight ? "2px solid rgba(143,232,180,0.85)" : "2px solid #3FAE6C"
+        border: "2px solid",
+        borderColor: isSelected
+          ? d.highlight ? "rgba(143,232,180,0.85)" : "#3FAE6C"
           : hovered
-            ? d.highlight ? "1.5px solid rgba(143,232,180,0.55)" : "1.5px solid #3FAE6C"
-            : d.highlight ? "1px solid rgba(143,232,180,0.15)" : "1px solid #e0d8c8",
+            ? d.highlight ? "rgba(143,232,180,0.55)" : "#3FAE6C"
+            : d.highlight ? "rgba(143,232,180,0.15)" : "transparent",
         background: d.highlight ? "#1e3d2a" : "#f5efe4",
         position: "relative", overflow: "hidden",
         display: "flex", flexDirection: "column", cursor: "pointer",
@@ -100,7 +101,7 @@ function TruckCard({ d, i, isSelected, onSelect, onOrder, imgSrc }: {
       {/* Truck image */}
       <div style={{ width: "100%", borderBottom: d.highlight ? "1px solid rgba(143,232,180,0.10)" : "1px solid #ede5d5", flexShrink: 0, overflow: "hidden" }}>
         <div style={{ transform: hovered ? "scale(1.08)" : "scale(1)", transition: "transform 0.42s cubic-bezier(0.34,1.56,0.64,1)", transformOrigin: "center center" }}>
-          <TruckImageCanvas src={imgSrc} alt={`Самоскид ${d.truck}`} height={200} padding={12} whiteThreshold={238} />
+          <TruckImageCanvas src={imgSrc} alt={`Самоскид ${d.truck}`} height={152} padding={8} whiteThreshold={238} />
         </div>
       </div>
 
@@ -149,7 +150,7 @@ export function Pricing({ onOrder }: PricingProps) {
   };
 
   return (
-    <section id="pricing" style={{ background: "#ffffff", padding: "96px 24px" }}>
+    <section id="pricing" style={{ background: "#ffffff", padding: "96px 24px" }} className="pricing-section">
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
 
         {/* Header */}
@@ -261,7 +262,7 @@ export function Pricing({ onOrder }: PricingProps) {
           <div style={{ fontFamily: SANS, fontSize: "12px", fontWeight: 600, color: "#3a7a57", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "20px", textAlign: "center" }}>
             Вартість доставки за типом самоскида
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px", alignItems: "stretch" }}>
+          <div className="truck-cards-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px", alignItems: "stretch", paddingBottom: "8px" }}>
             {pricing.delivery.map((d, i) => (
               <TruckCard key={d.truck} d={d} i={i}
                 imgSrc={getTruckImg(d.truck)}
@@ -315,6 +316,16 @@ export function Pricing({ onOrder }: PricingProps) {
           </AnimatePresence>
         </motion.div>
       </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .pricing-section { padding: 72px 20px 100px !important; }
+          .truck-cards-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
+        }
+        @media (max-width: 480px) {
+          .pricing-section { padding: 60px 16px 100px !important; }
+          .truck-cards-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </section>
   );
 }
