@@ -425,6 +425,9 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             border-radius: 13px !important;
             justify-content: center !important;
             align-items: center !important;
+            flex-direction: column !important;
+            gap: 5px !important;
+            height: 64px !important;
           }
           .hero-cta-secondary .hero-btn-label,
           .hero-cta-phone .hero-btn-label {
