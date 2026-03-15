@@ -174,7 +174,7 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.34 }}
           className="hero-cta-row"
-          style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center", marginBottom: "64px" }}
+          style={{ gap: "10px", alignItems: "center", marginBottom: "64px" }}
         >
           {/* Primary — full width on mobile */}
           <button
@@ -199,56 +199,50 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             {ctaPrimary}
           </button>
 
-          {/* Secondary + Phone — Fragment: both are direct flex-children on desktop.
-              On mobile, parent .hero-cta-row becomes CSS Grid (see <style>),
-              primary spans both cols, these two each get 1fr — no wrapper div. */}
-          <>
+          {/* Secondary */}
+          <button
+            onClick={onCalc}
+            className="hero-cta-secondary"
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "10px",
+              fontFamily: SANS, fontSize: "15px", fontWeight: 500,
+              background: "rgba(255,248,240,0.08)",
+              color: "rgba(255,248,240,0.88)",
+              border: "1.5px solid rgba(255,248,240,0.22)",
+              borderRadius: "14px",
+              cursor: "pointer",
+              transition: "all 0.22s ease",
+              backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.16)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.42)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.08)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.22)"; e.currentTarget.style.transform = ""; }}
+          >
+            <Calculator size={16} strokeWidth={1.8} />
+            <span className="hero-btn-label">{ctaSecondary}</span>
+          </button>
 
-            {/* Secondary */}
-            <button
-              onClick={onCalc}
-              className="hero-cta-secondary"
-              style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "10px",
-                fontFamily: SANS, fontSize: "15px", fontWeight: 500,
-                background: "rgba(255,248,240,0.08)",
-                color: "rgba(255,248,240,0.88)",
-                border: "1.5px solid rgba(255,248,240,0.22)",
-                borderRadius: "14px", padding: "17px 24px",
-                cursor: "pointer",
-                transition: "all 0.22s ease",
-                backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.16)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.42)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.08)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.22)"; e.currentTarget.style.transform = ""; }}
-            >
-              <Calculator size={16} strokeWidth={1.8} />
-              <span className="hero-btn-label">{ctaSecondary}</span>
-            </button>
+          {/* Phone */}
+          <a
+            href={`tel:${general.phoneRaw}`}
+            className="hero-cta-phone"
+            style={{
+              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "9px",
+              fontFamily: SANS, fontSize: "15px", fontWeight: 500,
+              color: "rgba(255,248,240,0.82)",
+              textDecoration: "none",
+              background: "rgba(255,248,240,0.06)",
+              border: "1.5px solid rgba(255,248,240,0.20)",
+              borderRadius: "14px",
+              transition: "all 0.22s ease",
+              backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.13)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.38)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.06)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.20)"; e.currentTarget.style.transform = ""; }}
+          >
+            <Phone size={14} color="#4fdb8c" strokeWidth={2} />
+            <span className="hero-btn-label">{general.phone}</span>
+          </a>
 
-            {/* Phone */}
-            <a
-              href={`tel:${general.phoneRaw}`}
-              className="hero-cta-phone"
-              style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "9px",
-                fontFamily: SANS, fontSize: "15px", fontWeight: 500,
-                color: "rgba(255,248,240,0.82)",
-                textDecoration: "none",
-                background: "rgba(255,248,240,0.06)",
-                border: "1.5px solid rgba(255,248,240,0.20)",
-                borderRadius: "14px", padding: "17px 24px",
-                transition: "all 0.22s ease",
-                backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.13)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.38)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.06)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.20)"; e.currentTarget.style.transform = ""; }}
-            >
-              <Phone size={14} color="#4fdb8c" strokeWidth={2} />
-              <span className="hero-btn-label">{general.phone}</span>
-            </a>
-
-          </>
         </motion.div>
       </div>
 
@@ -353,6 +347,18 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           50%       { opacity: 0.55; box-shadow: 0 0 6px rgba(79,219,140,0.5), 0 0 12px rgba(79,219,140,0.2); }
         }
 
+        /* ── Desktop default: flex row ── */
+        .hero-cta-row {
+          display: flex;
+          flex-wrap: wrap;
+        }
+        .hero-cta-primary,
+        .hero-cta-secondary,
+        .hero-cta-phone {
+          padding: 17px 24px;
+        }
+        .hero-cta-primary { padding: 18px 36px; }
+
         /* ─────────────────────────────────────────
            MOBILE  ≤ 768px
         ───────────────────────────────────────── */
@@ -394,15 +400,10 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             margin-bottom: 28px !important;
           }
 
-          /* ── CTA Row on mobile: switch to CSS Grid.
-             Grid completely replaces flex behaviour — ignores the inline
-             flexWrap="wrap" that was causing buttons to spill right.
-             Primary spans both columns (full width).
-             Secondary + Phone each get 1fr (exactly 50%). */
+          /* ── CTA Row: CSS Grid (no flex conflicts) ── */
           .hero-cta-row {
             display: grid !important;
             grid-template-columns: 1fr 1fr !important;
-            grid-template-rows: auto auto !important;
             gap: 10px !important;
             width: 100% !important;
             box-sizing: border-box !important;
@@ -411,18 +412,16 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           .hero-cta-primary {
             grid-column: 1 / -1 !important;
             box-sizing: border-box !important;
-            width: 100% !important;
-            font-size: 17px !important;
-            padding: 20px 24px !important;
-            border-radius: 16px !important;
             justify-content: center !important;
+            font-size: 17px !important;
+            padding: 20px 16px !important;
+            border-radius: 16px !important;
           }
           .hero-cta-secondary,
           .hero-cta-phone {
             box-sizing: border-box !important;
-            width: 100% !important;
             min-width: 0 !important;
-            padding: 0 !important;
+            padding: 12px 8px !important;
             border-radius: 13px !important;
             justify-content: center !important;
             align-items: center !important;
@@ -435,9 +434,10 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             font-size: 11px !important;
             line-height: 1.25 !important;
             text-align: center !important;
-            padding: 0 6px !important;
-            word-break: break-word !important;
             overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
           }
 
           /* Trust strip: 2 × 2 dark cards */
