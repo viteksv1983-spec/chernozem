@@ -23,5 +23,19 @@
   <body>
     <div id="root"><!--app-html--></div>
     <script type="module" src="/src/entry-client.tsx"></script>
+    <script>
+      // Register Service Worker — CacheFirst for hashed assets,
+      // bypasses GitHub Pages Cache-Control: max-age=600 limitation.
+      // Admin route is excluded from SW interception (always fresh).
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker
+            .register('/chernozem/sw.js', { scope: '/chernozem/' })
+            .catch(function () {
+              // SW registration is a progressive enhancement — silent fail is OK
+            });
+        });
+      }
+    </script>
   </body>
 </html>

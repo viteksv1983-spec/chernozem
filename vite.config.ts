@@ -2,90 +2,15 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
+// vite-plugin-pwa REMOVED — replaced by public/sw.js (zero npm dependency).
+// Reason: vite-plugin-pwa@1.2.0 exists only in Figma's private registry, not on
+// the public npm registry used by GitHub Actions → ERR_MODULE_NOT_FOUND in CI.
 
 export default defineConfig(({ isSsrBuild }) => ({
   plugins: [
     react(),
-    // Tailwind + PWA only for the client bundle
     ...(isSsrBuild ? [] : [
       tailwindcss(),
-      VitePWA({
-        // Auto-update SW silently when a new build is deployed
-        registerType: 'autoUpdate',
-        // Inject SW registration script into index.html automatically
-        injectRegister: 'auto',
-
-        workbox: {
-          // Pre-cache all hashed JS, CSS and HTML assets
-          globPatterns: ['**/*.{js,css,html}'],
-
-          // SPA fallback — serve index.html for any navigation request
-          navigateFallback: '/chernozem/index.html',
-          // Don't intercept admin route (keeps admin fresh from network)
-          navigateFallbackDenylist: [/^\/chernozem\/admin/],
-
-          // Hashed assets are immutable → serve from cache immediately
-          // (CacheFirst: ignore GitHub Pages max-age=600 header)
-          runtimeCaching: [
-            {
-              // All /chernozem/assets/*.js and *.css files have content hashes
-              urlPattern: ({ url }) =>
-                url.pathname.startsWith('/chernozem/assets/'),
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'chernozem-assets-v1',
-                expiration: {
-                  maxEntries: 120,
-                  // 1 year — safe because filenames change when content changes
-                  maxAgeSeconds: 60 * 60 * 24 * 365,
-                },
-                cacheableResponse: { statuses: [0, 200] },
-              },
-            },
-            {
-              // Unsplash hero + gallery images — cache for 7 days
-              urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'unsplash-images-v1',
-                expiration: {
-                  maxEntries: 30,
-                  maxAgeSeconds: 60 * 60 * 24 * 7,
-                },
-                cacheableResponse: { statuses: [0, 200] },
-              },
-            },
-            {
-              // Google Fonts — cache for 1 year (they are immutable too)
-              urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-v1',
-                expiration: {
-                  maxEntries: 20,
-                  maxAgeSeconds: 60 * 60 * 24 * 365,
-                },
-                cacheableResponse: { statuses: [0, 200] },
-              },
-            },
-          ],
-        },
-
-        manifest: {
-          name: 'КиївЧорнозем — доставка чорнозему по Києву',
-          short_name: 'КиївЧорнозем',
-          description: 'Чорнозем з доставкою. Прямо від виробника. ЗІЛ, КАМАЗ, МАЗ, ВОЛЬВО — 5 до 35 тонн.',
-          theme_color: '#040c06',
-          background_color: '#040c06',
-          // 'browser' keeps it as a website, not a full-screen PWA app
-          display: 'browser',
-          start_url: '/chernozem/',
-          scope: '/chernozem/',
-          lang: 'uk',
-          icons: [],
-        },
-      }),
     ]),
   ],
 
