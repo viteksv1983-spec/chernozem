@@ -1,5 +1,7 @@
 import { Phone, Calculator, Truck, MapPin, CreditCard, Factory, ChevronDown } from "lucide-react";
-const soilImg = "https://images.unsplash.com/photo-1665933642170-74eda3608318?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+// ── soilImg (Unsplash fallback) REMOVED ──
+// Was causing a 0.5s flash: Unsplash image rendered before Supabase content loaded.
+// Now section has a dark soil-green CSS background → zero flash guarantee.
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useContent } from "../contexts/ContentContext";
@@ -16,6 +18,7 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
   const { content } = useContent();
   const { hero, general } = content;
   const bgRef = useRef<HTMLImageElement>(null);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth <= 768 : false
   );
@@ -57,46 +60,55 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
-  const bgImage = (hero.imageOverride || content.images.heroPhoto) || soilImg;
+  // bgImage: только реальное фото из Supabase — никакого Unsplash fallback
+  const bgImage = hero.imageOverride || content.images.heroPhoto || "";
 
   return (
-    <section id="hero" style={{ position: "relative", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-end", overflow: "hidden" }}>
+    <section
+      id="hero"
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+        overflow: "hidden",
+        // Dark soil-green background — visible while real image loads.
+        // Replaces the Unsplash fallback: no external request, no flash.
+        background: "linear-gradient(145deg, #061009 0%, #0e2417 50%, #071410 100%)",
+      }}
+    >
 
-      {/* ── Background photo ── */}
+      {/* ── Background photo — render ONLY when URL is available ── */}
       <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-        {/*
-          Use <img> instead of CSS background-image so the browser preloader
-          can discover + fetch this image during HTML parsing (before CSS).
-          fetchPriority="high" → elevated network priority (Chromium LCP win).
-          loading="eager"     → never lazy-load the LCP element.
-          decoding="async"    → decode off main thread (no paint blocking).
-        */}
-        <img
-          ref={bgRef}
-          src={bgImage}
-          alt=""
-          // Explicit dimensions → browser calculates aspect ratio before load
-          // → eliminates CLS from image layout shifts.
-          // 1080×720 = 3:2, covers all common hero ratios (portrait/landscape).
-          width="1080"
-          height="720"
-          fetchpriority="high"
-          loading="eager"
-          decoding="async"
-          style={{
-            position: "absolute",
-            inset: "-10%",
-            width: "120%",
-            height: "120%",
-            objectFit: "cover",
-            objectPosition: "center 30%",
-            transform: "scale(1.18)",
-            willChange: "transform",
-            // Prevent img drag on desktop
-            userSelect: "none",
-            pointerEvents: "none",
-          }}
-        />
+        {bgImage && (
+          <img
+            ref={bgRef}
+            src={bgImage}
+            alt=""
+            width="1080"
+            height="720"
+            fetchpriority="high"
+            loading="eager"
+            decoding="async"
+            onLoad={() => setImgLoaded(true)}
+            style={{
+              position: "absolute",
+              inset: "-10%",
+              width: "120%",
+              height: "120%",
+              objectFit: "cover",
+              objectPosition: "center 30%",
+              transform: "scale(1.18)",
+              willChange: "transform",
+              userSelect: "none",
+              pointerEvents: "none",
+              // Fade in only after image is decoded + painted → zero Unsplash flash
+              opacity: imgLoaded ? 1 : 0,
+              transition: "opacity 0.55s ease",
+            }}
+          />
+        )}
       </div>
 
       {/* ── Gradient layers ── */}

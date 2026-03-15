@@ -93,9 +93,9 @@ export function SeoHead() {
     setLink("dns-prefetch", { rel: "dns-prefetch", href: "https://www.google-analytics.com" }, "dns-ga");
     setLink("dns-prefetch", { rel: "dns-prefetch", href: "https://api.telegram.org" }, "dns-tg");
 
-    // Hero image CDN — preconnect so TCP/TLS is open before first request.
-    // critical.ts does this at parse time; this is the safety fallback.
-    setLink("preconnect", { rel: "preconnect", href: "https://images.unsplash.com" }, "preconnect-unsplash");
+    // Hero image CDN — preconnect removed: Hero.tsx no longer uses Unsplash fallback.
+    // Other sections (Pricing, WhoIsItFor, SocialProof) still use Unsplash, so keep dns-prefetch.
+    setLink("dns-prefetch", { rel: "dns-prefetch", href: "https://images.unsplash.com" }, "dns-unsplash");
     // Supabase storage — used for uploaded hero/truck images
     setLink("preconnect", { rel: "preconnect", href: "https://iimoqcdnnehpbqcnasou.supabase.co" }, "preconnect-supabase");
 

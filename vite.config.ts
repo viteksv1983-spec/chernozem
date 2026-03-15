@@ -2,13 +2,91 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig(({ isSsrBuild }) => ({
   plugins: [
     react(),
-    // Tailwind is only needed for the client bundle (generates CSS).
-    // Skip it for the SSR build to keep the server bundle lean.
-    ...(isSsrBuild ? [] : [tailwindcss()]),
+    // Tailwind + PWA only for the client bundle
+    ...(isSsrBuild ? [] : [
+      tailwindcss(),
+      VitePWA({
+        // Auto-update SW silently when a new build is deployed
+        registerType: 'autoUpdate',
+        // Inject SW registration script into index.html automatically
+        injectRegister: 'auto',
+
+        workbox: {
+          // Pre-cache all hashed JS, CSS and HTML assets
+          globPatterns: ['**/*.{js,css,html}'],
+
+          // SPA fallback — serve index.html for any navigation request
+          navigateFallback: '/chernozem/index.html',
+          // Don't intercept admin route (keeps admin fresh from network)
+          navigateFallbackDenylist: [/^\/chernozem\/admin/],
+
+          // Hashed assets are immutable → serve from cache immediately
+          // (CacheFirst: ignore GitHub Pages max-age=600 header)
+          runtimeCaching: [
+            {
+              // All /chernozem/assets/*.js and *.css files have content hashes
+              urlPattern: ({ url }) =>
+                url.pathname.startsWith('/chernozem/assets/'),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'chernozem-assets-v1',
+                expiration: {
+                  maxEntries: 120,
+                  // 1 year — safe because filenames change when content changes
+                  maxAgeSeconds: 60 * 60 * 24 * 365,
+                },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              // Unsplash hero + gallery images — cache for 7 days
+              urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'unsplash-images-v1',
+                expiration: {
+                  maxEntries: 30,
+                  maxAgeSeconds: 60 * 60 * 24 * 7,
+                },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              // Google Fonts — cache for 1 year (they are immutable too)
+              urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-v1',
+                expiration: {
+                  maxEntries: 20,
+                  maxAgeSeconds: 60 * 60 * 24 * 365,
+                },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+          ],
+        },
+
+        manifest: {
+          name: 'КиївЧорнозем — доставка чорнозему по Києву',
+          short_name: 'КиївЧорнозем',
+          description: 'Чорнозем з доставкою. Прямо від виробника. ЗІЛ, КАМАЗ, МАЗ, ВОЛЬВО — 5 до 35 тонн.',
+          theme_color: '#040c06',
+          background_color: '#040c06',
+          // 'browser' keeps it as a website, not a full-screen PWA app
+          display: 'browser',
+          start_url: '/chernozem/',
+          scope: '/chernozem/',
+          lang: 'uk',
+          icons: [],
+        },
+      }),
+    ]),
   ],
 
   resolve: {
@@ -84,6 +162,17 @@ export default defineConfig(({ isSsrBuild }) => ({
                   if (/node_modules\/@mui\//.test(id)) {
                     return 'mui';
                   }
+                }
+
+                // ── Landing sections: one lazy bundle ─────────────────────────────
+                // Before: 7 separate chunks (2–6 KB each) → 7 parallel HTTP requests
+                //         Lighthouse counts each as a node in the network dependency chain.
+                // After:  1 combined chunk (~35 KB) → 1 HTTP request
+                //         → shorter waterfall, fewer chain nodes, better Lighthouse score.
+                // All sections are React.lazy() → bundle is still loaded lazily,
+                // only when the first section enters the viewport.
+                if (/\/src\/app\/components\/(Calculator|Pricing|WhoIsItFor|HowItWorks|SocialProof|FAQ|FinalCTA)/.test(id)) {
+                  return 'landingSections';
                 }
               },
 
