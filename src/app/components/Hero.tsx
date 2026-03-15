@@ -146,6 +146,7 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
               // Fade in only after image is decoded + painted → zero Unsplash flash
               opacity: imgLoaded ? 1 : 0,
               transition: "opacity 0.55s ease",
+              filter: "brightness(1.08) contrast(1.05)",
             }}
           />
         )}
@@ -153,7 +154,10 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
 
       {/* ── Gradient layers ── */}
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(4,12,6,0.75) 0%, rgba(4,12,6,0.10) 40%, transparent 65%)" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(115deg, rgba(4,12,6,0.92) 0%, rgba(4,12,6,0.60) 45%, rgba(4,12,6,0.0) 72%)" }} />
+      {/* Left-to-right content protection — pure 90deg, cinematic */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(5,30,15,0.95) 0%, rgba(5,30,15,0.75) 35%, rgba(5,30,15,0.2) 65%, rgba(0,0,0,0) 100%)" }} />
+      {/* Depth layer — grass lighter top, soil darker bottom → 3D effect */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(255,255,230,0.05) 0%, transparent 28%, transparent 55%, rgba(2,6,3,0.42) 100%)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "320px", background: "linear-gradient(to top, rgba(4,12,6,0.90) 0%, transparent 100%)" }} />
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 130% 110% at 50% 50%, transparent 38%, rgba(0,0,0,0.65) 100%)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", inset: 0, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`, backgroundRepeat: "repeat", backgroundSize: "160px", opacity: 0.032, mixBlendMode: "overlay", pointerEvents: "none" }} />
@@ -237,7 +241,7 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             color: "rgba(250,246,240,0.80)",
             maxWidth: isMobile ? "100%" : "490px",
             lineHeight: 1.72,
-            marginBottom: isMobile ? (isSmall ? "22px" : "28px") : "40px",
+            marginBottom: isMobile ? (isSmall ? "16px" : "20px") : "26px",
             textShadow: "0 1px 8px rgba(0,0,0,0.55)",
             overflowWrap: "break-word",
             wordBreak: "break-word",
@@ -245,6 +249,67 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
         >
           {subheadline}
         </motion.p>
+
+        {/* ── Trust row ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.30 }}
+          style={{
+            display: "flex",
+            flexWrap: "wrap" as const,
+            alignItems: "center",
+            gap: isMobile ? "6px 10px" : "6px 14px",
+            marginBottom: isMobile ? (isSmall ? "20px" : "24px") : "32px",
+          }}
+        >
+          {/* Stars + rating */}
+          <span style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            fontFamily: SANS,
+            fontSize: isMobile ? "13px" : "14px",
+            color: "#f5c842",
+            fontWeight: 600,
+            letterSpacing: "0.5px",
+            textShadow: "0 1px 6px rgba(0,0,0,0.55)",
+          }}>
+            {"★★★★★"}
+            <span style={{ color: "#d7e7df", fontWeight: 600 }}>4.9</span>
+          </span>
+
+          {/* Separator */}
+          <span style={{ color: "rgba(215,231,223,0.30)", fontSize: "13px" }}>•</span>
+
+          {/* Pill items */}
+          {[
+            "2 000+ клієнтів",
+            "Працюємо з 2015",
+            "Доставка за 24 години",
+          ].map((item, i) => (
+            <span
+              key={i}
+              style={{
+                fontFamily: SANS,
+                fontSize: isMobile ? "12.5px" : "13.5px",
+                color: "#d7e7df",
+                opacity: 0.88,
+                fontWeight: 500,
+                letterSpacing: "0.1px",
+                textShadow: "0 1px 6px rgba(0,0,0,0.50)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+              }}
+            >
+              {i > 0 && (
+                <span style={{ color: "rgba(215,231,223,0.30)", marginRight: "2px" }}>•</span>
+              )}
+              {item}
+            </span>
+          ))}
+        </motion.div>
 
         {/* CTA Row */}
         <motion.div
@@ -288,20 +353,22 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
               gap: "10px",
               fontFamily: SANS,
               fontWeight: 700,
-              background: "linear-gradient(135deg, #3cb96e 0%, #24894d 100%)",
+              background: "linear-gradient(135deg, #41c784 0%, #27a358 100%)",
               color: "#fff",
               border: "none",
               borderRadius: isMobile ? (isSmall ? "14px" : "16px") : "14px",
               cursor: "pointer",
               transition: "all 0.24s cubic-bezier(0.34,1.56,0.64,1)",
               letterSpacing: "0.1px",
-              boxShadow: "0 8px 32px rgba(36,137,77,0.55), inset 0 1px 0 rgba(255,255,255,0.22)",
+              boxShadow: "0 10px 40px rgba(80,220,140,0.35), 0 4px 16px rgba(36,137,77,0.40), inset 0 1px 0 rgba(255,255,255,0.22)",
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-3px) scale(1.03)"; e.currentTarget.style.boxShadow = "0 16px 48px rgba(36,137,77,0.65), inset 0 1px 0 rgba(255,255,255,0.22)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 8px 32px rgba(36,137,77,0.55), inset 0 1px 0 rgba(255,255,255,0.22)"; }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-3px) scale(1.03)"; e.currentTarget.style.boxShadow = "0 18px 52px rgba(80,220,140,0.52), 0 6px 24px rgba(36,137,77,0.45), inset 0 1px 0 rgba(255,255,255,0.22)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = "0 10px 40px rgba(80,220,140,0.35), 0 4px 16px rgba(36,137,77,0.40), inset 0 1px 0 rgba(255,255,255,0.22)"; }}
+            className="hero-cta-primary"
           >
             <Truck size={16} strokeWidth={2} />
-            {ctaPrimary}
+            <span>{ctaPrimary}</span>
+            <span className="cta-arrow" style={{ display: "inline-block", willChange: "transform" }}>→</span>
           </button>
 
           {/* Secondary */}
@@ -324,7 +391,7 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
               transition: "all 0.22s ease",
               backdropFilter: "blur(16px)",
               WebkitBackdropFilter: "blur(16px)",
-              padding: isMobile ? "12px 8px" : "17px 24px",
+              padding: isMobile ? "12px 8px" : "14px 28px",
               height: isMobile ? (isSmall ? "60px" : "64px") : "auto",
               boxSizing: "border-box" as const,
               minWidth: 0,
@@ -365,7 +432,7 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
               transition: "all 0.22s ease",
               backdropFilter: "blur(16px)",
               WebkitBackdropFilter: "blur(16px)",
-              padding: isMobile ? "12px 8px" : "17px 24px",
+              padding: isMobile ? "12px 8px" : "14px 28px",
               height: isMobile ? (isSmall ? "60px" : "64px") : "auto",
               boxSizing: "border-box" as const,
               minWidth: 0,
@@ -501,6 +568,14 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           padding: 17px 24px;
         }
         .hero-cta-primary { padding: 18px 36px; }
+
+        /* ── Arrow animation on primary CTA ── */
+        .hero-cta-primary .cta-arrow {
+          transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .hero-cta-primary:hover .cta-arrow {
+          transform: translateX(5px);
+        }
 
         /* ─────────────────────────────────────────
            MOBILE  ≤ 768px
