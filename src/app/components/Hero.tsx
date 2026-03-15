@@ -199,49 +199,55 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             {ctaPrimary}
           </button>
 
-          {/* Secondary */}
-          <button
-            onClick={onCalc}
-            className="hero-cta-secondary"
-            style={{
-              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "10px",
-              fontFamily: SANS, fontSize: "15px", fontWeight: 500,
-              background: "rgba(255,248,240,0.08)",
-              color: "rgba(255,248,240,0.88)",
-              border: "1.5px solid rgba(255,248,240,0.22)",
-              borderRadius: "14px", padding: "17px 24px",
-              cursor: "pointer",
-              transition: "all 0.22s ease",
-              backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.16)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.42)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.08)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.22)"; e.currentTarget.style.transform = ""; }}
-          >
-            <Calculator size={16} strokeWidth={1.8} />
-            {ctaSecondary}
-          </button>
+          {/* Secondary + Phone — side-by-side on mobile via hero-cta-secondary-row grid,
+              display:contents on desktop so both are direct flex-children of .hero-cta-row */}
+          <div className="hero-cta-secondary-row" style={{ display: "contents" }}>
 
-          {/* Phone button */}
-          <a
-            href={`tel:${general.phoneRaw}`}
-            className="hero-cta-phone"
-            style={{
-              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "9px",
-              fontFamily: SANS, fontSize: "15px", fontWeight: 500,
-              color: "rgba(255,248,240,0.82)",
-              textDecoration: "none",
-              background: "rgba(255,248,240,0.06)",
-              border: "1.5px solid rgba(255,248,240,0.20)",
-              borderRadius: "14px", padding: "17px 24px",
-              transition: "all 0.22s ease",
-              backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.13)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.38)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.06)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.20)"; e.currentTarget.style.transform = ""; }}
-          >
-            <Phone size={14} color="#4fdb8c" strokeWidth={2} />
-            {general.phone}
-          </a>
+            {/* Secondary */}
+            <button
+              onClick={onCalc}
+              className="hero-cta-secondary"
+              style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "10px",
+                fontFamily: SANS, fontSize: "15px", fontWeight: 500,
+                background: "rgba(255,248,240,0.08)",
+                color: "rgba(255,248,240,0.88)",
+                border: "1.5px solid rgba(255,248,240,0.22)",
+                borderRadius: "14px", padding: "17px 24px",
+                cursor: "pointer",
+                transition: "all 0.22s ease",
+                backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.16)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.42)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.08)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.22)"; e.currentTarget.style.transform = ""; }}
+            >
+              <Calculator size={16} strokeWidth={1.8} />
+              <span className="hero-btn-label">{ctaSecondary}</span>
+            </button>
+
+            {/* Phone */}
+            <a
+              href={`tel:${general.phoneRaw}`}
+              className="hero-cta-phone"
+              style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "9px",
+                fontFamily: SANS, fontSize: "15px", fontWeight: 500,
+                color: "rgba(255,248,240,0.82)",
+                textDecoration: "none",
+                background: "rgba(255,248,240,0.06)",
+                border: "1.5px solid rgba(255,248,240,0.20)",
+                borderRadius: "14px", padding: "17px 24px",
+                transition: "all 0.22s ease",
+                backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.13)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.38)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.06)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.20)"; e.currentTarget.style.transform = ""; }}
+            >
+              <Phone size={14} color="#4fdb8c" strokeWidth={2} />
+              <span className="hero-btn-label">{general.phone}</span>
+            </a>
+
+          </div>
         </motion.div>
       </div>
 
@@ -346,18 +352,31 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           50%       { opacity: 0.55; box-shadow: 0 0 6px rgba(79,219,140,0.5), 0 0 12px rgba(79,219,140,0.2); }
         }
 
-        /* ── TABLET / LARGE PHONE (481px – 768px) ── */
+        /* ─────────────────────────────────────────
+           MOBILE  ≤ 768px
+        ───────────────────────────────────────── */
         @media (max-width: 768px) {
-          .hero-content {
-            padding: 104px 20px 0 !important;
-          }
+
+          /* Content padding */
+          .hero-content { padding: 104px 20px 0 !important; }
+
+          /* ── Badge: compact pill ── */
           .hero-badge {
+            padding: 6px 14px !important;
+            margin-bottom: 20px !important;
             max-width: calc(100vw - 40px) !important;
-            margin-bottom: 24px !important;
+            gap: 8px !important;
           }
           .hero-badge-text {
-            max-width: calc(100vw - 100px) !important;
+            font-size: 11.5px !important;
+            letter-spacing: 0.3px !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            max-width: calc(100vw - 96px) !important;
           }
+
+          /* ── Headline ── */
           .hero-headline {
             font-size: 38px !important;
             letter-spacing: -1.4px !important;
@@ -365,6 +384,8 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             margin-bottom: 16px !important;
             max-width: 100% !important;
           }
+
+          /* ── Sub ── */
           .hero-sub {
             font-size: 15px !important;
             max-width: 100% !important;
@@ -372,32 +393,59 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             margin-bottom: 28px !important;
           }
 
-          /* CTAs — primary full width, secondary + phone side by side */
+          /* ── CTA Row: column, NO WRAP, full-width items ──
+             flex-wrap: nowrap !important overrides the inline
+             flexWrap="wrap" that caused buttons to spill right  */
           .hero-cta-row {
+            display: flex !important;
             flex-direction: column !important;
+            flex-wrap: nowrap !important;
             align-items: stretch !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
             gap: 10px !important;
             margin-bottom: 32px !important;
           }
+
+          /* Primary: large green pill */
           .hero-cta-primary {
             width: 100% !important;
-            border-radius: 16px !important;
+            box-sizing: border-box !important;
+            min-width: 0 !important;
             font-size: 17px !important;
             padding: 20px 24px !important;
+            border-radius: 16px !important;
             justify-content: center !important;
+          }
+
+          /* Secondary & Phone: side-by-side via inner grid */
+          .hero-cta-secondary-row {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+            width: 100% !important;
           }
           .hero-cta-secondary,
           .hero-cta-phone {
-            flex: 1 !important;
-            font-size: 14px !important;
-            padding: 17px 18px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            min-width: 0 !important;
+            font-size: 13px !important;
+            padding: 0 !important;
             border-radius: 13px !important;
             justify-content: center !important;
+            align-items: center !important;
+            flex-direction: column !important;
+            gap: 5px !important;
+            height: 64px !important;
           }
-          /* Side-by-side row for secondary + phone */
-          .hero-cta-secondary-phone-wrap {
-            display: flex !important;
-            gap: 10px !important;
+          .hero-cta-secondary .hero-btn-label,
+          .hero-cta-phone .hero-btn-label {
+            font-size: 11.5px !important;
+            line-height: 1.3 !important;
+            text-align: center !important;
+            padding: 0 8px !important;
+            word-break: break-word !important;
           }
 
           /* Trust strip: 2 × 2 dark cards */
@@ -422,65 +470,48 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
             border: 1px solid rgba(255,255,255,0.09) !important;
             border-radius: 14px !important;
           }
-          .hero-trust-icon {
-            width: 36px !important;
-            height: 36px !important;
-          }
+          .hero-trust-icon { width: 36px !important; height: 36px !important; }
           .hero-learn-more { display: block !important; }
           .hero-scroll-indicator { display: none !important; }
         }
 
-        /* ── SMALL PHONE (≤ 480px) ── */
+        /* ─────────────────────────────────────────
+           SMALL PHONE  ≤ 480px
+        ───────────────────────────────────────── */
         @media (max-width: 480px) {
           .hero-content { padding: 92px 16px 0 !important; }
-          .hero-badge {
-            padding: 7px 16px !important;
-            margin-bottom: 20px !important;
-            max-width: calc(100vw - 88px) !important;
-          }
+
+          .hero-badge { padding: 5px 13px !important; margin-bottom: 18px !important; }
           .hero-badge-text {
-            font-size: 12px !important;
-            max-width: calc(100vw - 88px) !important;
+            font-size: 11px !important;
+            max-width: calc(100vw - 82px) !important;
           }
+
           .hero-headline {
             font-size: 34px !important;
             letter-spacing: -1px !important;
-            line-height: 1.07 !important;
             margin-bottom: 14px !important;
           }
-          .hero-sub {
-            font-size: 14px !important;
-            line-height: 1.65 !important;
-            margin-bottom: 24px !important;
-          }
+          .hero-sub { font-size: 14px !important; margin-bottom: 22px !important; }
+
           .hero-cta-row { gap: 9px !important; margin-bottom: 28px !important; }
-          .hero-cta-primary {
-            font-size: 16px !important;
-            padding: 19px 20px !important;
-            border-radius: 14px !important;
-          }
-          .hero-cta-secondary,
-          .hero-cta-phone {
-            font-size: 13px !important;
-            padding: 16px 14px !important;
-            border-radius: 12px !important;
-          }
+          .hero-cta-primary { font-size: 16px !important; padding: 19px 20px !important; border-radius: 14px !important; }
+          .hero-cta-secondary, .hero-cta-phone { height: 60px !important; border-radius: 12px !important; }
+          .hero-cta-secondary-row { gap: 9px !important; }
+
           .hero-trust-strip { padding: 12px 14px 0 !important; gap: 8px !important; }
-          .hero-trust-item {
-            padding: 13px 12px !important;
-            border-radius: 12px !important;
-            gap: 9px !important;
-          }
+          .hero-trust-item { padding: 13px 12px !important; border-radius: 12px !important; gap: 9px !important; }
           .hero-trust-icon { width: 34px !important; height: 34px !important; }
         }
 
-        /* ── EXTRA SMALL (≤ 390px, iPhone SE / older Androids) ── */
+        /* ─────────────────────────────────────────
+           EXTRA SMALL  ≤ 390px  (iPhone SE etc.)
+        ───────────────────────────────────────── */
         @media (max-width: 390px) {
           .hero-content { padding: 88px 14px 0 !important; }
           .hero-headline { font-size: 30px !important; letter-spacing: -0.8px !important; }
           .hero-sub { font-size: 13.5px !important; }
-          .hero-badge-text { max-width: calc(100vw - 88px) !important; }
-          .hero-badge { max-width: calc(100vw - 88px) !important; }
+          .hero-badge-text { max-width: calc(100vw - 78px) !important; }
         }
       `}</style>
     </section>
