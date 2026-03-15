@@ -1,6 +1,6 @@
 import { Phone, Calculator, Truck, MapPin, CreditCard, Factory, ChevronDown } from "lucide-react";
 const soilImg = "https://images.unsplash.com/photo-1665933642170-74eda3608318?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useContent } from "../contexts/ContentContext";
 
@@ -16,6 +16,21 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
   const { content } = useContent();
   const { hero, general } = content;
   const bgRef = useRef<HTMLImageElement>(null);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth <= 768 : false
+  );
+  const [isSmall, setIsSmall] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth <= 480 : false
+  );
+
+  useEffect(() => {
+    const onResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+      setIsSmall(window.innerWidth <= 480);
+    };
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const headlineLine1  = hero.headlineLine1  || "Чорнозем з";
   const headlineAccent = hero.headlineAccent || "доставкою";
@@ -173,20 +188,47 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.34 }}
-          className="hero-cta-row"
-          style={{ gap: "10px", alignItems: "center", marginBottom: "64px" }}
+          style={isMobile ? {
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: isSmall ? "8px" : "10px",
+            width: "100%",
+            boxSizing: "border-box",
+            marginBottom: isSmall ? "28px" : "32px",
+          } : {
+            display: "flex",
+            flexWrap: "wrap" as const,
+            gap: "10px",
+            alignItems: "center",
+            marginBottom: "64px",
+          }}
         >
           {/* Primary — full width on mobile */}
           <button
             onClick={onOrder}
-            className="hero-cta-primary"
             style={{
-              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "10px",
-              fontFamily: SANS, fontSize: "16px", fontWeight: 700,
+              ...(isMobile ? {
+                gridColumn: "1 / -1",
+                display: "flex",
+                fontSize: isSmall ? "16px" : "17px",
+                padding: isSmall ? "19px 20px" : "20px 16px",
+                borderRadius: isSmall ? "14px" : "16px",
+                boxSizing: "border-box" as const,
+                width: "100%",
+              } : {
+                display: "inline-flex",
+                fontSize: "16px",
+                padding: "18px 36px",
+              }),
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "10px",
+              fontFamily: SANS,
+              fontWeight: 700,
               background: "linear-gradient(135deg, #3cb96e 0%, #24894d 100%)",
               color: "#fff",
-              border: "none", borderRadius: "14px",
-              padding: "18px 36px",
+              border: "none",
+              borderRadius: isMobile ? (isSmall ? "14px" : "16px") : "14px",
               cursor: "pointer",
               transition: "all 0.24s cubic-bezier(0.34,1.56,0.64,1)",
               letterSpacing: "0.1px",
@@ -202,45 +244,83 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           {/* Secondary */}
           <button
             onClick={onCalc}
-            className="hero-cta-secondary"
             style={{
-              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "10px",
-              fontFamily: SANS, fontSize: "15px", fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: isMobile ? "5px" : "10px",
+              flexDirection: isMobile ? "column" : "row",
+              fontFamily: SANS,
+              fontSize: isMobile ? "11px" : "15px",
+              fontWeight: 500,
               background: "rgba(255,248,240,0.08)",
               color: "rgba(255,248,240,0.88)",
               border: "1.5px solid rgba(255,248,240,0.22)",
-              borderRadius: "14px",
+              borderRadius: isMobile ? (isSmall ? "12px" : "13px") : "14px",
               cursor: "pointer",
               transition: "all 0.22s ease",
-              backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              padding: isMobile ? "12px 8px" : "17px 24px",
+              height: isMobile ? (isSmall ? "60px" : "64px") : "auto",
+              boxSizing: "border-box" as const,
+              minWidth: 0,
+              overflow: "hidden",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.16)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.42)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.08)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.22)"; e.currentTarget.style.transform = ""; }}
           >
             <Calculator size={16} strokeWidth={1.8} />
-            <span className="hero-btn-label">{ctaSecondary}</span>
+            <span style={{
+              fontSize: isMobile ? "11px" : "15px",
+              lineHeight: isMobile ? "1.25" : "1",
+              textAlign: "center",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: isMobile ? "normal" : "nowrap",
+              maxWidth: "100%",
+            }}>{ctaSecondary}</span>
           </button>
 
           {/* Phone */}
           <a
             href={`tel:${general.phoneRaw}`}
-            className="hero-cta-phone"
             style={{
-              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "9px",
-              fontFamily: SANS, fontSize: "15px", fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: isMobile ? "5px" : "9px",
+              flexDirection: isMobile ? "column" : "row",
+              fontFamily: SANS,
+              fontSize: isMobile ? "11px" : "15px",
+              fontWeight: 500,
               color: "rgba(255,248,240,0.82)",
               textDecoration: "none",
               background: "rgba(255,248,240,0.06)",
               border: "1.5px solid rgba(255,248,240,0.20)",
-              borderRadius: "14px",
+              borderRadius: isMobile ? (isSmall ? "12px" : "13px") : "14px",
               transition: "all 0.22s ease",
-              backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              padding: isMobile ? "12px 8px" : "17px 24px",
+              height: isMobile ? (isSmall ? "60px" : "64px") : "auto",
+              boxSizing: "border-box" as const,
+              minWidth: 0,
+              overflow: "hidden",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.13)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.38)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,248,240,0.06)"; e.currentTarget.style.borderColor = "rgba(255,248,240,0.20)"; e.currentTarget.style.transform = ""; }}
           >
             <Phone size={14} color="#4fdb8c" strokeWidth={2} />
-            <span className="hero-btn-label">{general.phone}</span>
+            <span style={{
+              fontSize: isMobile ? "11px" : "15px",
+              lineHeight: isMobile ? "1.25" : "1",
+              textAlign: "center",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: isMobile ? "normal" : "nowrap",
+              maxWidth: "100%",
+            }}>{general.phone}</span>
           </a>
 
         </motion.div>
