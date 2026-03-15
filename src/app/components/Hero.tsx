@@ -109,28 +109,39 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
       {/* ── Content ── */}
       <div
         className="hero-content"
-        style={{ position: "relative", zIndex: 2, maxWidth: "1200px", margin: "0 auto", padding: "140px 32px 0", width: "100%" }}
+        style={{
+          position: "relative",
+          zIndex: 2,
+          maxWidth: "1200px",
+          margin: "0 auto",
+          padding: isMobile
+            ? (isSmall ? "92px 16px 0" : "104px 20px 0")
+            : "140px 32px 0",
+          width: "100%",
+          boxSizing: "border-box",
+        }}
       >
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="hero-badge"
           style={{
-            display: "inline-flex", alignItems: "center", gap: "10px",
+            display: "inline-flex", alignItems: "center",
+            gap: isMobile ? "8px" : "10px",
             background: "rgba(14,48,28,0.52)",
             border: "1px solid rgba(143,232,180,0.32)",
-            borderRadius: "100px", padding: "8px 20px",
-            marginBottom: "32px",
+            borderRadius: "100px",
+            padding: isMobile ? "6px 14px" : "8px 20px",
+            marginBottom: isMobile ? "20px" : "32px",
             backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
             boxShadow: "0 2px 20px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.06)",
-            maxWidth: "calc(100vw - 40px)",
+            maxWidth: "calc(100% - 0px)",
             overflow: "hidden",
           }}
         >
           <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#4fdb8c", boxShadow: "0 0 12px rgba(79,219,140,0.9), 0 0 24px rgba(79,219,140,0.4)", flexShrink: 0, animation: "livePulse 2.4s ease-in-out infinite", display: "inline-block" }} />
-          <span className="hero-badge-text" style={{ fontFamily: SANS, fontSize: "13px", fontWeight: 500, color: "#9ef0c0", letterSpacing: "0.6px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>
+          <span style={{ fontFamily: SANS, fontSize: isMobile ? "11.5px" : "13px", fontWeight: 500, color: "#9ef0c0", letterSpacing: isMobile ? "0.3px" : "0.6px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0, maxWidth: "calc(100vw - 100px)" }}>
             {hero.badge}
           </span>
         </motion.div>
@@ -140,16 +151,15 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="hero-headline"
           style={{
             fontFamily: SERIF,
-            fontSize: "clamp(42px, 8vw, 90px)",
+            fontSize: isMobile ? (isSmall ? "34px" : "38px") : "clamp(42px, 8vw, 90px)",
             fontWeight: 800,
             color: "#faf6f0",
             lineHeight: 1.06,
-            letterSpacing: "-2px",
-            maxWidth: "820px",
-            marginBottom: "22px",
+            letterSpacing: isMobile ? (isSmall ? "-1px" : "-1.4px") : "-2px",
+            maxWidth: "100%",
+            marginBottom: isMobile ? "16px" : "22px",
             textShadow: "0 2px 8px rgba(0,0,0,0.70), 0 8px 48px rgba(0,0,0,0.40)",
             overflowWrap: "break-word",
             wordBreak: "break-word",
@@ -169,15 +179,16 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.22 }}
-          className="hero-sub"
           style={{
             fontFamily: SANS,
-            fontSize: "clamp(15px, 1.9vw, 18px)",
+            fontSize: isMobile ? (isSmall ? "14px" : "15px") : "clamp(15px, 1.9vw, 18px)",
             color: "rgba(250,246,240,0.80)",
-            maxWidth: "490px",
+            maxWidth: isMobile ? "100%" : "490px",
             lineHeight: 1.72,
-            marginBottom: "40px",
+            marginBottom: isMobile ? (isSmall ? "22px" : "28px") : "40px",
             textShadow: "0 1px 8px rgba(0,0,0,0.55)",
+            overflowWrap: "break-word",
+            wordBreak: "break-word",
           }}
         >
           {subheadline}
