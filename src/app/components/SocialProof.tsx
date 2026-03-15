@@ -1,30 +1,27 @@
-const truckDeliveryImg = "https://images.unsplash.com/photo-1765603955623-e2f57e1c7d29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const gardenResultImg = "https://images.unsplash.com/photo-1682187150385-474c7d9eb7ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const homeownerImg = "https://images.unsplash.com/photo-1634316888962-75074307f81c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+const truckDeliveryImg  = "https://images.unsplash.com/photo-1765603955623-e2f57e1c7d29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+const gardenResultImg   = "https://images.unsplash.com/photo-1682187150385-474c7d9eb7ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+const homeownerImg      = "https://images.unsplash.com/photo-1634316888962-75074307f81c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+
 import { motion } from "motion/react";
 import { Star, Quote, ArrowRight, Leaf } from "lucide-react";
 import { useContent } from "../contexts/ContentContext";
 
 const SERIF = "'Playfair Display', Georgia, serif";
-const SANS = "'Inter', system-ui, sans-serif";
+const SANS  = "'Inter', system-ui, sans-serif";
 
-const TRUCK_IMG = truckDeliveryImg;
-
-const GARDEN_IMG = gardenResultImg;
-
-const HOMEOWNER_IMG = homeownerImg;
+// Mapping: review index → { photo src, label, objectPosition }
+// Used on mobile only — each card gets a header photo.
+const REVIEW_PHOTO_META = [
+  { label: "Доставка самоскидом",    pos: "center 40%" },
+  { label: "Результат засипки",       pos: "center 60%" },
+  { label: "Задоволений клієнт",     pos: "center top"  },
+];
 
 function Stars({ count = 5 }: { count?: number }) {
   return (
     <div style={{ display: "flex", gap: "3px" }}>
       {Array.from({ length: count }).map((_, i) => (
-        <Star
-          key={i}
-          size={15}
-          fill="#e8a430"
-          color="#e8a430"
-          strokeWidth={0}
-        />
+        <Star key={i} size={15} fill="#e8a430" color="#e8a430" strokeWidth={0} />
       ))}
     </div>
   );
@@ -38,21 +35,24 @@ export function SocialProof({ onOrder }: SocialProofProps) {
   const { content } = useContent();
   const reviews = content.reviews;
   const { general } = content;
-  // Use image overrides if set, otherwise fall back to figma:asset imports
-  const truckImg = content.images.truckDelivery || truckDeliveryImg;
-  const gardenImg = content.images.gardenResult || gardenResultImg;
-  const homeImg = content.images.homeowner || homeownerImg;
+
+  // Use image overrides if admin uploaded, otherwise Unsplash fallback
+  const truckImg  = content.images.truckDelivery || truckDeliveryImg;
+  const gardenImg = content.images.gardenResult  || gardenResultImg;
+  const homeImg   = content.images.homeowner     || homeownerImg;
+
+  // Photos ordered to match review index
+  const reviewPhotos = [truckImg, gardenImg, homeImg];
+
   return (
     <section
       id="reviews"
       className="reviews-section"
-      style={{
-        background: "#ffffff",
-        padding: "112px 32px",
-      }}
+      style={{ background: "#ffffff", padding: "112px 32px" }}
     >
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        {/* Header */}
+
+        {/* ── Header ─────────────────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -81,9 +81,7 @@ export function SocialProof({ onOrder }: SocialProofProps) {
               Нам довіряють понад {general.clientsCount} клієнтів
             </h2>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px", flexShrink: 0 }}>
-              <div style={{ display: "flex", gap: "3px" }}>
-                <Stars count={5} />
-              </div>
+              <Stars count={5} />
               <p style={{ fontFamily: SANS, fontSize: "13px", color: "#9a8878", whiteSpace: "nowrap" }}>
                 4.9 / 5 · на основі 847 відгуків
               </p>
@@ -91,7 +89,7 @@ export function SocialProof({ onOrder }: SocialProofProps) {
           </div>
         </motion.div>
 
-        {/* Photo gallery strip — magazine mosaic layout */}
+        {/* ── Desktop photo mosaic — hidden on mobile ─────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -108,73 +106,45 @@ export function SocialProof({ onOrder }: SocialProofProps) {
             height: "300px",
           }}
         >
+          {/* Photo 1 — truck */}
           <div style={{ position: "relative", overflow: "hidden" }}>
             <img
               src={truckImg}
               alt={content.imageAlts.truckDelivery}
               loading="eager"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                transition: "transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)",
-                display: "block",
-              }}
+              style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)", display: "block" }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.06)")}
               onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             />
-            <div
-              style={{
-                position: "absolute",
-                bottom: "16px",
-                left: "16px",
-                background: "rgba(20,12,7,0.80)",
-                backdropFilter: "blur(6px)",
-                borderRadius: "8px",
-                padding: "8px 14px",
-              }}
-            >
-              <span style={{ fontFamily: SANS, fontSize: "13px", color: "#fff", fontWeight: 500 }}>
-                Доставка самоскидом
-              </span>
+            <div style={{ position: "absolute", bottom: "16px", left: "16px", background: "rgba(20,12,7,0.80)", backdropFilter: "blur(6px)", borderRadius: "8px", padding: "8px 14px" }}>
+              <span style={{ fontFamily: SANS, fontSize: "13px", color: "#fff", fontWeight: 500 }}>Доставка самоскидом</span>
             </div>
           </div>
+          {/* Photo 2 — garden */}
           <div style={{ position: "relative", overflow: "hidden" }}>
             <img
               src={gardenImg}
               alt={content.imageAlts.gardenResult}
               loading="eager"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                transition: "transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)",
-                display: "block",
-              }}
+              style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)", display: "block" }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.06)")}
               onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             />
           </div>
+          {/* Photo 3 — homeowner */}
           <div style={{ position: "relative", overflow: "hidden" }}>
             <img
               src={homeImg}
               alt={content.imageAlts.homeowner}
               loading="eager"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                objectPosition: "top",
-                transition: "transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)",
-                display: "block",
-              }}
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", transition: "transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)", display: "block" }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.06)")}
               onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             />
           </div>
         </motion.div>
 
-        {/* Reviews */}
+        {/* ── Reviews grid ───────────────────────────────────────────────── */}
         <div
           style={{
             display: "grid",
@@ -182,65 +152,122 @@ export function SocialProof({ onOrder }: SocialProofProps) {
             gap: "24px",
           }}
         >
-          {reviews.map((r, i) => (
-            <motion.div
-              key={r.name}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -5, boxShadow: "0 24px 64px rgba(0,0,0,0.09)" }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              style={{
-                background: "#f8f4ee",
-                borderRadius: "20px",
-                padding: "36px",
-                position: "relative",
-                border: "1px solid #ece4d6",
-                boxShadow: "0 2px 16px rgba(0,0,0,0.04)",
-                cursor: "default",
-                transition: "box-shadow 0.3s ease, transform 0.3s ease",
-              }}
-            >
-              {/* Quote mark */}
-              <div style={{ position: "absolute", top: "24px", right: "28px", opacity: 0.08 }}>
-                <Quote size={44} color="#140c07" fill="#140c07" />
-              </div>
+          {reviews.map((r, i) => {
+            const meta  = REVIEW_PHOTO_META[i % REVIEW_PHOTO_META.length];
+            const photo = reviewPhotos[i % reviewPhotos.length];
 
-              {/* Rating */}
-              <div style={{ marginBottom: "20px" }}>
-                <Stars count={r.rating} />
-              </div>
-
-              {/* Text */}
-              <p style={{ fontFamily: SANS, fontSize: "15px", color: "#3a2a1a", lineHeight: 1.78, marginBottom: "28px", fontStyle: "italic" }}>
-                "{r.text}"
-              </p>
-
-              {/* Separator */}
-              <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", marginBottom: "20px" }} />
-
-              {/* Author */}
-              <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                {r.photoOverride ? (
-                  <div style={{ width: "46px", height: "46px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, border: "2px solid #e8dfd4" }}>
-                    <img src={r.photoOverride} alt={r.name} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            return (
+              <motion.div
+                key={r.name}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -5, boxShadow: "0 24px 64px rgba(0,0,0,0.09)" }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="sp-review-card"
+                style={{
+                  background: "#f8f4ee",
+                  borderRadius: "20px",
+                  overflow: "hidden",
+                  position: "relative",
+                  border: "1px solid #ece4d6",
+                  boxShadow: "0 2px 16px rgba(0,0,0,0.04)",
+                  cursor: "default",
+                  transition: "box-shadow 0.3s ease, transform 0.3s ease",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                {/* ── Mobile photo header — hidden on desktop ────────────── */}
+                <div className="sp-review-img-header">
+                  <div style={{ position: "relative", height: "190px", overflow: "hidden" }}>
+                    <img
+                      src={photo}
+                      alt={meta.label}
+                      loading="eager"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        objectPosition: meta.pos,
+                        display: "block",
+                        transition: "transform 0.5s ease",
+                      }}
+                    />
+                    {/* Bottom gradient blending into card background */}
+                    <div style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: "64px",
+                      background: "linear-gradient(to bottom, transparent, rgba(248,244,238,0.85))",
+                      pointerEvents: "none",
+                    }} />
+                    {/* Label badge */}
+                    <div style={{
+                      position: "absolute",
+                      bottom: "14px",
+                      left: "16px",
+                      background: "rgba(20,12,7,0.72)",
+                      backdropFilter: "blur(8px)",
+                      WebkitBackdropFilter: "blur(8px)",
+                      borderRadius: "7px",
+                      padding: "5px 12px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}>
+                      <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#4fdb8c", flexShrink: 0 }} />
+                      <span style={{ fontFamily: SANS, fontSize: "12px", color: "#fff", fontWeight: 500 }}>{meta.label}</span>
+                    </div>
                   </div>
-                ) : (
-                  <div style={{ width: "46px", height: "46px", borderRadius: "50%", background: "linear-gradient(135deg, #3a7a57, #2d6045)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <span style={{ fontFamily: SANS, fontSize: "15px", fontWeight: 700, color: "#fff" }}>{r.initials}</span>
-                  </div>
-                )}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: SANS, fontSize: "14px", fontWeight: 700, color: "#140c07", marginBottom: "2px" }}>{r.name}</div>
-                  <div style={{ fontFamily: SANS, fontSize: "12px", color: "#9a8878" }}>{r.role}</div>
                 </div>
-                <div style={{ fontFamily: SANS, fontSize: "11px", color: "#c0b0a0", letterSpacing: "0.3px" }}>{r.date}</div>
-              </div>
-            </motion.div>
-          ))}
+
+                {/* ── Review content ─────────────────────────────────────── */}
+                <div className="sp-review-body">
+                  {/* Quote mark */}
+                  <div style={{ position: "absolute", top: "24px", right: "28px", opacity: 0.08 }} className="sp-quote-icon">
+                    <Quote size={44} color="#140c07" fill="#140c07" />
+                  </div>
+
+                  {/* Rating */}
+                  <div style={{ marginBottom: "16px" }}>
+                    <Stars count={r.rating} />
+                  </div>
+
+                  {/* Text */}
+                  <p style={{ fontFamily: SANS, fontSize: "15px", color: "#3a2a1a", lineHeight: 1.78, marginBottom: "24px", fontStyle: "italic" }}>
+                    "{r.text}"
+                  </p>
+
+                  {/* Separator */}
+                  <div style={{ borderTop: "1px solid rgba(0,0,0,0.07)", marginBottom: "18px" }} />
+
+                  {/* Author */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    {r.photoOverride ? (
+                      <div style={{ width: "42px", height: "42px", borderRadius: "50%", overflow: "hidden", flexShrink: 0, border: "2px solid #e8dfd4" }}>
+                        <img src={r.photoOverride} alt={r.name} loading="eager" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      </div>
+                    ) : (
+                      <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "linear-gradient(135deg, #3a7a57, #2d6045)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <span style={{ fontFamily: SANS, fontSize: "14px", fontWeight: 700, color: "#fff" }}>{r.initials}</span>
+                      </div>
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: SANS, fontSize: "14px", fontWeight: 700, color: "#140c07", marginBottom: "2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</div>
+                      <div style={{ fontFamily: SANS, fontSize: "12px", color: "#9a8878" }}>{r.role}</div>
+                    </div>
+                    <div style={{ fontFamily: SANS, fontSize: "11px", color: "#c0b0a0", letterSpacing: "0.3px", flexShrink: 0 }}>{r.date}</div>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* Trust badges */}
+        {/* ── Trust badges ──────────────────────────────────────────────── */}
         <div style={{ marginTop: "48px", display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px" }}>
           {[
             "✅ Паспорт якості на ґрунт",
@@ -269,7 +296,7 @@ export function SocialProof({ onOrder }: SocialProofProps) {
           ))}
         </div>
 
-        {/* CTA block */}
+        {/* ── CTA block ─────────────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -334,14 +361,50 @@ export function SocialProof({ onOrder }: SocialProofProps) {
       </div>
 
       <style>{`
-        @media (max-width: 640px) {
-          .sp-photo-grid { grid-template-columns: 1fr !important; height: 220px !important; }
-          .sp-photo-grid > div:nth-child(2), .sp-photo-grid > div:nth-child(3) { display: none !important; }
-          .sp-cta-block { padding: 32px 24px !important; }
+        /* ── Mobile photo header: hidden on desktop ────────────────────────── */
+        .sp-review-img-header { display: none; }
+
+        /* ── Desktop review card body padding ─────────────────────────────── */
+        .sp-review-body {
+          padding: 36px;
+          flex: 1;
+          position: relative;
         }
+
+        /* ══════════════════════════════════════
+           TABLET  ≤ 900px
+        ══════════════════════════════════════ */
         @media (max-width: 900px) {
-          .sp-photo-grid { grid-template-columns: 1fr 1fr !important; height: 240px !important; }
+          .sp-photo-grid {
+            grid-template-columns: 1fr 1fr !important;
+            height: 240px !important;
+          }
           .sp-photo-grid > div:nth-child(3) { display: none !important; }
+        }
+
+        /* ══════════════════════════════════════
+           MOBILE  ≤ 640px
+        ══════════════════════════════════════ */
+        @media (max-width: 640px) {
+          /* Hide desktop mosaic grid entirely */
+          .sp-photo-grid { display: none !important; }
+
+          /* Show photo header in each review card */
+          .sp-review-img-header { display: block !important; }
+
+          /* Adjust body padding: no top padding (photo takes that space) */
+          .sp-review-body { padding: 20px 20px 24px !important; }
+
+          /* Quote icon: adapt for smaller cards */
+          .sp-quote-icon { top: 20px !important; right: 20px !important; }
+
+          /* CTA block */
+          .sp-cta-block { padding: 28px 20px !important; }
+          .sp-cta-actions { width: 100% !important; }
+          .sp-cta-actions button { width: 100% !important; justify-content: center !important; }
+
+          /* Section padding */
+          .reviews-section { padding: 72px 16px !important; }
         }
       `}</style>
     </section>
