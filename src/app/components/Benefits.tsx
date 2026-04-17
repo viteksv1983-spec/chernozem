@@ -272,7 +272,7 @@ export function Benefits() {
           .benefit-card {
             display: flex !important;
             flex-direction: row !important;
-            align-items: flex-start !important;
+            align-items: center !important;
             gap: 14px !important;
             padding: 20px 18px !important;
           }
