@@ -621,6 +621,13 @@ export function loadContent(): SiteContent {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
     }
 
+    // ── Migration: clean up long badge from localStorage to stop flashing ──
+    if (result.hero.badge && /клієнтів/i.test(result.hero.badge)) {
+      result.hero.badge = "Прямі поставки чорнозему • Київ та область";
+      const clean = { ...result, images: DEFAULT_CONTENT.images };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clean));
+    }
+
     // ── Migration: if old localStorage still has base64 images, move to IDB ──
     const oldImages = (merged as SiteContent).images ?? {};
     const hasOldImages = Object.values(oldImages).some(
