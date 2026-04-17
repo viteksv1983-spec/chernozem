@@ -1083,7 +1083,9 @@ export function AdminPage() {
                       <Field label="Назва"><TInput value={d.truck} onChange={(v) => setD("pricing", { ...draft.pricing, delivery: draft.pricing.delivery.map((x, j) => j === i ? { ...x, truck: v } : x) })} /></Field>
                       <Field label="Вантажність"><TInput value={d.capacity} onChange={(v) => setD("pricing", { ...draft.pricing, delivery: draft.pricing.delivery.map((x, j) => j === i ? { ...x, capacity: v } : x) })} /></Field>
                       <Field label="Об'єм"><TInput value={d.volume} onChange={(v) => setD("pricing", { ...draft.pricing, delivery: draft.pricing.delivery.map((x, j) => j === i ? { ...x, volume: v } : x) })} /></Field>
-                      <Field label="Діапазон цін"><TInput value={d.price} onChange={(v) => setD("pricing", { ...draft.pricing, delivery: draft.pricing.delivery.map((x, j) => j === i ? { ...x, price: v } : x) })} /></Field>
+                      <Field label="Текст цін (Вітрина)"><TInput value={d.price} onChange={(v) => setD("pricing", { ...draft.pricing, delivery: draft.pricing.delivery.map((x, j) => j === i ? { ...x, price: v } : x) })} /></Field>
+                      <Field label="Калькулятор (Мін. ціна, грн)"><NInput value={d.priceMin} onChange={(v) => setD("pricing", { ...draft.pricing, delivery: draft.pricing.delivery.map((x, j) => j === i ? { ...x, priceMin: v } : x) })} min={0} /></Field>
+                      <Field label="Калькулятор (Макс. ціна, грн)"><NInput value={d.priceMax} onChange={(v) => setD("pricing", { ...draft.pricing, delivery: draft.pricing.delivery.map((x, j) => j === i ? { ...x, priceMax: v } : x) })} min={0} /></Field>
                     </Grid2>
                     <Field label="Нотатка"><TInput value={d.note} onChange={(v) => setD("pricing", { ...draft.pricing, delivery: draft.pricing.delivery.map((x, j) => j === i ? { ...x, note: v } : x) })} /></Field>
                     <Field label="Для кого підходить"><TInput value={d.usageLabel} onChange={(v) => setD("pricing", { ...draft.pricing, delivery: draft.pricing.delivery.map((x, j) => j === i ? { ...x, usageLabel: v } : x) })} /></Field>
