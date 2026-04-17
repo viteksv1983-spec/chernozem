@@ -1,0 +1,37 @@
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # HTML - No cache (always fresh for new updates)
+    ExpiresByType text/html "access plus 0 seconds"
+
+    # Data/JSON - No cache (so content edits apply immediately)
+    ExpiresByType application/json "access plus 0 seconds"
+    
+    # CSS & JavaScript - 1 year (Vite uses hashes in filenames, so it's 100% safe to cache forever)
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType application/x-javascript "access plus 1 year"
+
+    # Images & Fonts - 1 month (or up to 1 year)
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Enforce standard Cache-Control headers
+    <FilesMatch "\.(css|js|woff2)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    <FilesMatch "\.(jpg|jpeg|png|webp|svg|gif)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+
+    <FilesMatch "\.(html|json)$">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+</IfModule>
