@@ -1389,7 +1389,7 @@ export function AdminPage() {
                     {/* Upload zone */}
                     <ImageUploader
                       label=""
-                      value={s.ogImage?.startsWith("data:") ? s.ogImage : (s.ogImage?.startsWith("http") ? s.ogImage : "")}
+                      value={s.ogImage || ""}
                       onChange={(url) => setS({ ogImage: url })}
                       aspect="landscape"
                       imageKey="ogImage"
@@ -1417,10 +1417,10 @@ export function AdminPage() {
                     )}
 
                     {/* Note */}
-                    <div style={{ marginTop: "8px", display: "flex", alignItems: "flex-start", gap: "6px", background: "#fefce8", border: "1px solid #fde68a", borderRadius: "8px", padding: "8px 10px" }}>
-                      <span style={{ fontSize: "14px", flexShrink: 0, lineHeight: 1.2 }}>⚠️</span>
-                      <p style={{ fontSize: "12px", color: "#92400e", margin: 0, lineHeight: 1.5 }}>
-                        <b>Для Facebook, Telegram, LinkedIn</b> потрібна публічна URL на хостингу — base64 зображення соціальні мережі не сканують. Після деплою на <b>chernozem.com.ua</b> — завантажте картинку 1200×630 px і вставте URL.
+                    <div style={{ marginTop: "8px", display: "flex", alignItems: "flex-start", gap: "6px", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: "8px", padding: "8px 10px" }}>
+                      <span style={{ fontSize: "14px", flexShrink: 0, lineHeight: 1.2 }}>ℹ️</span>
+                      <p style={{ fontSize: "12px", color: "#14532d", margin: 0, lineHeight: 1.5 }}>
+                        <b>Автоматизація URL:</b> Ви можете просто завантажити картинку вище, або вставити посилання нижче. Система автоматично згенерує абсолютне посилання для Facebook та Telegram під капотом!
                       </p>
                     </div>
                   </div>

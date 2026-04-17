@@ -60,7 +60,14 @@ export function SeoHead() {
   const ogDesc      = seo.ogDescription || description;
   const canonical   = seo.canonicalUrl || FALLBACK_CANONICAL;
   const ogUrl       = seo.ogUrl       || canonical;
-  const ogImage     = seo.ogImage     || "";
+  const ogImageRaw  = seo.ogImage     || "";
+
+  // ── Absolute URL Enforcement for Open Graph ──
+  // Social networks (Facebook, Telegram) REQUIRE absolute URLs. 
+  // If the uploaded image returns a relative path from the server, we auto-prepend the domain.
+  const ogImage = ogImageRaw.startsWith("/") || ogImageRaw.startsWith("./")
+    ? new URL(ogImageRaw, window.location.origin).href
+    : ogImageRaw;
 
   useEffect(() => {
     // ── lang ──────────────────────────────────────────────────────────────
