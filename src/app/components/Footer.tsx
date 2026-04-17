@@ -307,8 +307,8 @@ export function Footer({ onPrivacy }: { onPrivacy: () => void }) {
           /* Nav: left col, row 2 */
           .footer-nav-col { grid-column: 1 !important; grid-row: 2 !important; }
 
-          /* Products: left col, row 3 */
-          .footer-product-col { grid-column: 1 !important; grid-row: 3 !important; }
+          /* Products: full width, row 4 */
+          .footer-product-col { grid-column: 1 / -1 !important; grid-row: 4 !important; padding-top: 4px; }
 
           /* Contacts: right col, rows 2–3 */
           .footer-contact-col {
