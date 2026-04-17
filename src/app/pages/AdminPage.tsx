@@ -1412,7 +1412,12 @@ export function AdminPage() {
                     {/* URL preview */}
                     {s.ogImage && !s.ogImage.startsWith("data:") && (
                       <div style={{ marginTop: "8px", borderRadius: "8px", overflow: "hidden", border: `1px solid ${C.border}` }}>
-                        <img src={s.ogImage} alt="OG Preview" style={{ width: "100%", height: "120px", objectFit: "cover", display: "block" }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                        <img 
+                          src={s.ogImage.startsWith("/") && !s.ogImage.startsWith(import.meta.env.BASE_URL) ? `${import.meta.env.BASE_URL}${s.ogImage.slice(1)}` : s.ogImage} 
+                          alt="OG Preview" 
+                          style={{ width: "100%", height: "120px", objectFit: "cover", display: "block" }} 
+                          onError={(e) => { e.currentTarget.style.display = "none"; }} 
+                        />
                       </div>
                     )}
 
