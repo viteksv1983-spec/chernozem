@@ -135,31 +135,33 @@ export function Footer({ onPrivacy }: { onPrivacy: () => void }) {
             }}>
               Продукція
             </div>
-            {[
-              { label: "Чорнозем насипом", id: "pricing" },
-              { label: "Чорнозем у мішках",  id: "pricing" },
-            ].map((item) => (
-              <button
-                key={item.label}
-                onClick={() => scrollTo(item.id)}
-                style={{
-                  display: "block", fontFamily: SANS, fontSize: "13.5px",
-                  color: "rgba(255,255,255,0.62)", background: "none",
-                  border: "none", cursor: "pointer", padding: "3.5px 0",
-                  textAlign: "left", transition: "color 0.2s, transform 0.18s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = "#8fe8b4";
-                  e.currentTarget.style.transform = "translateX(4px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = "rgba(255,255,255,0.62)";
-                  e.currentTarget.style.transform = "translateX(0)";
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
+            <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", alignItems: "center" }}>
+              {[
+                { label: "Чорнозем насипом", id: "pricing" },
+                { label: "Чорнозем у мішках",  id: "pricing" },
+              ].map((item) => (
+                <button
+                  key={item.label}
+                  onClick={() => scrollTo(item.id)}
+                  style={{
+                    display: "block", fontFamily: SANS, fontSize: "13.5px",
+                    color: "rgba(255,255,255,0.62)", background: "none",
+                    border: "none", cursor: "pointer", padding: "3.5px 0",
+                    textAlign: "left", transition: "color 0.2s, transform 0.18s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "#8fe8b4";
+                    e.currentTarget.style.transform = "translateX(4px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "rgba(255,255,255,0.62)";
+                    e.currentTarget.style.transform = "translateX(0)";
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
           </motion.div>
 
           {/* ── Contacts ───────────────────────────────────────────────── */}
