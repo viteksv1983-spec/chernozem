@@ -12,7 +12,14 @@ import App from "./app/App";
 
 const rootEl = document.getElementById("root")!;
 
-if (rootEl.hasChildNodes()) {
+// Check if the root has any actual DOM elements or non-empty text
+// (ignores HTML comments like <!--app-html--> that Vite leaves behind)
+const hasSSRContent = Array.from(rootEl.childNodes).some(node => 
+  node.nodeType === Node.ELEMENT_NODE || 
+  (node.nodeType === Node.TEXT_NODE && node.textContent?.trim() !== '')
+);
+
+if (hasSSRContent) {
   // ── SSR content present → hydrate ──────────────────────
   ReactDOM.hydrateRoot(
     rootEl,
@@ -22,6 +29,8 @@ if (rootEl.hasChildNodes()) {
   );
 } else {
   // ── No SSR content (dev / CSR fallback) → create root ──
+  // Clear any placeholder comments first to be safe
+  rootEl.innerHTML = "";
   ReactDOM.createRoot(rootEl).render(
     <StrictMode>
       <App />
