@@ -179,7 +179,7 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
               exit={{ opacity: 0, scale: 0.93, y: 20 }}
               transition={{ duration: 0.28, ease: "easeOut" }}
               style={{
-                width: "100%", maxWidth: "560px", maxHeight: "92vh",
+                width: "100%", maxWidth: "560px", maxHeight: "88dvh",
                 overflowY: "auto", background: "#ffffff", borderRadius: "24px",
                 boxShadow: "0 32px 80px rgba(0,0,0,0.35)",
                 pointerEvents: "all", position: "relative",
@@ -609,7 +609,7 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
               .modal-sheet {
                 max-width: 100% !important;
                 border-radius: 24px 24px 0 0 !important;
-                max-height: 94vh !important;
+                max-height: 85dvh !important;
                 /* Slide up from bottom */
               }
               .modal-drag-handle { display: flex !important; }
