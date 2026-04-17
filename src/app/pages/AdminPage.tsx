@@ -50,7 +50,7 @@ import {
   LogOut, Eye, Save, RotateCcw, Settings, Layout, Star, HelpCircle,
   DollarSign, ImageIcon, CheckCircle, ChevronDown, ChevronUp, Plus,
   Trash2, User, Lock, Building2, Upload, X, HardDrive, Users, Menu,
-  Zap, Send, BarChart2, AlertCircle, Download, FileUp,
+  Zap, Send, BarChart2, AlertCircle,
 } from "lucide-react";
 
 const SANS  = "'Inter', system-ui, sans-serif";
@@ -573,11 +573,8 @@ export function AdminPage() {
     if (storedPass) api.setAdminPassword(storedPass);
   }, []);
   const [storageInfo, setStorageInfo] = useState("");
-  const [importing, setImporting] = useState(false);
-  const [exporting, setExporting] = useState(false);
   const isMobile = useIsMobile();
   const tabsRef    = useRef<HTMLDivElement>(null);
-  const importRef  = useRef<HTMLInputElement>(null);
 
   const { content, updateContent, resetContent } = useContent();
 
@@ -720,149 +717,6 @@ export function AdminPage() {
     }
   };
 
-  // ── Export: download full backup JSON (photos compressed to ~200KB each) ──
-  const handleExport = async () => {
-    setExporting(true);
-    setToast("⏳ Стискаємо фото…");
-    try {
-      const imgs = { ...draft.images };
-      type ImgKey = keyof typeof imgs;
-
-      // Map: image slot → figma:asset fallback URL
-      const fallbacks: [ImgKey, string][] = [
-        ["heroPhoto",          _soilFallback],
-        ["truckDelivery",      _truckDeliveryFallback],
-        ["gardenResult",       _gardenResultFallback],
-        ["homeowner",          _homeownerFallback],
-        ["agroPhoto",          _agroFallback],
-        ["landscapePhoto",     _landscapeFallback],
-        ["gardenSegmentPhoto", _gardenSegFallback],
-        ["lawnPhoto",          _lawnFallback],
-        ["truckZil",           _zilFallback],
-        ["truckKamaz",         _kamazFallback],
-        ["truckMaz",           _mazFallback],
-        ["truckVolvo",         _volvoFallback],
-      ];
-
-      // Step 1: fill empty slots from figma:asset fallbacks (raw URL)
-      await Promise.all(
-        fallbacks.map(async ([key, fallback]) => {
-          if (!imgs[key]) imgs[key] = await toBase64(fallback);
-        })
-      );
-
-      // Step 2: compress ALL images to ≤200KB each
-      setToast("⏳ Стискаємо фот�� (може зайняти кілька секунд)…");
-      await Promise.all(
-        (Object.keys(imgs) as ImgKey[]).map(async (key) => {
-          if (imgs[key]) imgs[key] = await compressDataUrl(imgs[key], 1200, 900, 200);
-        })
-      );
-
-      const backup = {
-        _version: 2,
-        _exported: new Date().toISOString(),
-        content: { ...draft, images: imgs },
-        integrations: intg,
-      };
-      const blob = new Blob([JSON.stringify(backup)], { type: "application/json" });
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement("a");
-      const date = new Date().toISOString().slice(0, 10);
-      a.href     = url;
-      a.download = `kyivchornozem-backup-${date}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      setToast("✓ Готово! Всі 12 фото включено (~3 МБ)");
-    } catch {
-      setToast("⚠ Помилка під час експорту");
-    } finally {
-      setExporting(false);
-    }
-  };
-
-  // ── Import: restore from backup JSON ──
-  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    e.target.value = "";
-    setImporting(true);
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const raw = JSON.parse(reader.result as string);
-        if (raw._version && typeof raw._version !== "number") {
-          setToast("⚠ Невірний формат файлу: поле _version має бути числом");
-          setImporting(false);
-          return;
-        }
-        if (raw._version && raw._version > 10) {
-          setToast("⚠ Файл занадто новий для цієї версії адмінки");
-          setImporting(false);
-          return;
-        }
-        const rawContent      = raw._version ? raw.content      : raw;
-        const rawIntegrations = raw._version ? raw.integrations : null;
-        if (!rawContent || typeof rawContent !== "object") {
-          setToast("⚠ Пошкоджений файл: відсутнє поле content");
-          setImporting(false);
-          return;
-        }
-        const merged = safeMerge(rawContent as SiteContent);
-
-        // ── Крок 1: base64 фото → Supabase Storage ──────────────────────
-        // Без цього base64 (~3 МБ) не влізе в KV Store, і телефон не побачить фото
-        const adminPass = api.getAdminPassword();
-        if (adminPass) {
-          const imageKeys = Object.keys(merged.images) as Array<keyof typeof merged.images>;
-          const base64Keys = imageKeys.filter((k) => {
-            const v = merged.images[k];
-            return typeof v === "string" && (v as string).startsWith("data:");
-          });
-          if (base64Keys.length > 0) {
-            setToast(`⏳ Завантажуємо ${base64Keys.length} фото в хмару…`);
-            let done = 0;
-            await Promise.allSettled(
-              base64Keys.map(async (key) => {
-                const val = merged.images[key] as string;
-                try {
-                  const mimeMatch = val.match(/^data:([^;]+);base64,/);
-                  const mimeType  = mimeMatch?.[1] ?? "image/jpeg";
-                  const url = await api.uploadImage(key as string, val, mimeType);
-                  (merged.images as Record<string, string>)[key as string] = url;
-                  done++;
-                  setToast(`⏳ Фото в хмарі: ${done}/${base64Keys.length}…`);
-                } catch (uploadErr) {
-                  console.warn(`[Import] Не вдалося завантажити ${String(key)}:`, uploadErr);
-                }
-              })
-            );
-          }
-        }
-
-        // ── Крок 2: зберегти контент із URL (вже без base64) ────────────
-        setDraft(merged);
-        updateContent(() => merged);
-        if (rawIntegrations) {
-          setIntg(rawIntegrations);
-          saveIntegrations(rawIntegrations);
-        }
-        try {
-          await api.saveContent(merged);
-          setToast("✓ Готово! Всі фото в хмарі — тепер видно на всіх пристроях.");
-        } catch (saveErr) {
-          console.error("[Import] saveContent error:", saveErr);
-          setToast("⚠ Фото завантажено, але помилка збереження тексту. Натисни «Зберегти» ще раз.");
-        }
-      } catch (err) {
-        console.error("[Import] Parse error:", err);
-        setToast("⚠ Помилка: невірний формат файлу");
-      } finally {
-        setImporting(false);
-      }
-    };
-    reader.readAsText(file);
-  };
 
   const handleReset = async () => {
     if (confirm("Скинути весь контент до початкових налаштувань?")) {
@@ -989,23 +843,6 @@ export function AdminPage() {
           )}
         </div>
 
-        {/* Export / Import */}
-        <div style={{ padding: "10px 10px", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-          <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.25)", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 4px 6px", fontWeight: 700 }}>Перенос даних</p>
-          <button onClick={handleExport} disabled={exporting}
-            style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "11px 12px", borderRadius: "8px", background: "rgba(143,232,180,0.08)", border: "1px solid rgba(143,232,180,0.18)", cursor: exporting ? "wait" : "pointer", color: exporting ? "rgba(143,232,180,0.4)" : "#8fe8b4", fontSize: "13px", fontFamily: SANS, fontWeight: 600, marginBottom: "6px", minHeight: "44px", transition: "all 0.15s" }}
-            onMouseEnter={e => { if (!exporting) e.currentTarget.style.background = "rgba(143,232,180,0.15)"; }}
-            onMouseLeave={e => (e.currentTarget.style.background = "rgba(143,232,180,0.08)")}>
-            <Download size={14} />{exporting ? "⏳ Пакуємо фото…" : "Експорт (backup.json)"}
-          </button>
-          <button onClick={() => importRef.current?.click()} disabled={importing}
-            style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", padding: "11px 12px", borderRadius: "8px", background: importing ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", cursor: importing ? "wait" : "pointer", color: importing ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.55)", fontSize: "13px", fontFamily: SANS, fontWeight: 500, minHeight: "44px", transition: "background 0.15s" }}
-            onMouseEnter={e => { if (!importing) e.currentTarget.style.background = "rgba(255,255,255,0.10)"; }}
-            onMouseLeave={e => (e.currentTarget.style.background = importing ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.06)")}>
-            <FileUp size={14} />{importing ? "Завантаження…" : "Імпорт backup.json"}
-          </button>
-          <input ref={importRef} type="file" accept=".json,application/json" onChange={handleImportFile} style={{ display: "none" }} />
-        </div>
 
         {/* Footer */}
         <div style={{ padding: "10px 10px", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
@@ -1047,11 +884,6 @@ export function AdminPage() {
               <button onClick={handleReset}
                 style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", borderRadius: "8px", background: "transparent", border: `1px solid ${C.border}`, color: C.muted, fontSize: "13px", fontWeight: 500, cursor: "pointer", fontFamily: SANS }}>
                 <RotateCcw size={14} />Скинути
-              </button>
-              <button onClick={handleExport} disabled={exporting}
-                title="Експорт резервної копії (backup.json з усіма фото)"
-                style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 14px", borderRadius: "8px", background: C.accentLight, border: `1px solid ${C.accent}40`, color: exporting ? C.muted : C.accent, fontSize: "13px", fontWeight: 600, cursor: exporting ? "wait" : "pointer", fontFamily: SANS, opacity: exporting ? 0.7 : 1 }}>
-                <Download size={14} />{exporting ? "Пакуємо…" : "Експорт"}
               </button>
               <button onClick={handleSave} disabled={saving}
                 style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 20px", borderRadius: "8px", background: saved ? C.success : saving ? `${C.accent}90` : `linear-gradient(135deg, ${C.accent}, #2d7a50)`, border: "none", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: saving ? "wait" : "pointer", fontFamily: SANS, transition: "background 0.3s", boxShadow: "0 2px 10px rgba(63,174,108,0.3)" }}>
