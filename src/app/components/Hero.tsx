@@ -134,15 +134,15 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
               width: "120%",
               height: "120%",
               objectFit: "cover",
-              objectPosition: "center 30%",
-              transform: "scale(1.18)",
+              objectPosition: "center",
               willChange: "transform",
               userSelect: "none",
               pointerEvents: "none",
               // Fade in only after image is decoded + painted → zero Unsplash flash
               opacity: imgLoaded ? 1 : 0,
               transition: "opacity 0.55s ease",
-              filter: "brightness(1.08) contrast(1.05)",
+              filter: "brightness(1.08) contrast(1.15) saturate(1.08)",
+              imageRendering: "high-quality" as React.CSSProperties["imageRendering"],
             }}
           />
         )}

@@ -1,9 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
-const agroImage     = "https://images.unsplash.com/photo-1627842822558-c1f15aef9838?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const landscapeImage = "https://images.unsplash.com/photo-1723079637087-1d4aabcd5c63?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const gardenImage    = "https://images.unsplash.com/photo-1646598446800-5cd8e4312f52?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const lawnImage      = "https://images.unsplash.com/photo-1651860282417-50eb7e16f48e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+const agroImage     = "/chernozem/assets/images/agro.jpg";
+const landscapeImage = "/chernozem/assets/images/landscape.jpg";
+const gardenImage    = "/chernozem/assets/images/gardenSeg.jpg";
+const lawnImage      = "/chernozem/assets/images/lawn.jpg";
 import { useContent } from "../contexts/ContentContext";
 import { SiteContent } from "../lib/siteContent";
 

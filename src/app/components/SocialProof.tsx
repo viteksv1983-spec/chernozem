@@ -1,6 +1,6 @@
-const truckDeliveryImg  = "https://images.unsplash.com/photo-1765603955623-e2f57e1c7d29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const gardenResultImg   = "https://images.unsplash.com/photo-1682187150385-474c7d9eb7ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const homeownerImg      = "https://images.unsplash.com/photo-1634316888962-75074307f81c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+const truckDeliveryImg  = "/chernozem/assets/images/truckDelivery.jpg";
+const gardenResultImg   = "/chernozem/assets/images/gardenResult.jpg";
+const homeownerImg      = "/chernozem/assets/images/homeowner.jpg";
 
 import { motion } from "motion/react";
 import { Star, Quote, ArrowRight, Leaf } from "lucide-react";

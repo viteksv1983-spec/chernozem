@@ -11,18 +11,18 @@ import * as api from "../lib/api";
 const ADMIN_SESSION_KEY = "kyivchornozem_admin_pass_v1";
 
 // ── Fallback images (Unsplash URLs — no figma:asset in production build) ──
-const _soilFallback          = "https://images.unsplash.com/photo-1665933642170-74eda3608318?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _truckDeliveryFallback = "https://images.unsplash.com/photo-1765603955623-e2f57e1c7d29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _gardenResultFallback  = "https://images.unsplash.com/photo-1682187150385-474c7d9eb7ab?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _homeownerFallback     = "https://images.unsplash.com/photo-1634316888962-75074307f81c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _agroFallback          = "https://images.unsplash.com/photo-1627842822558-c1f15aef9838?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _landscapeFallback     = "https://images.unsplash.com/photo-1723079637087-1d4aabcd5c63?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _gardenSegFallback     = "https://images.unsplash.com/photo-1646598446800-5cd8e4312f52?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _lawnFallback          = "https://images.unsplash.com/photo-1651860282417-50eb7e16f48e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _zilFallback           = "https://images.unsplash.com/photo-1765603955623-e2f57e1c7d29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _kamazFallback         = "https://images.unsplash.com/photo-1758549756956-68af87f6a55e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _mazFallback           = "https://images.unsplash.com/photo-1644004482249-cdad1f0da74c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const _volvoFallback         = "https://images.unsplash.com/photo-1758549756956-68af87f6a55e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+const _soilFallback          = "/chernozem/assets/images/soil.jpg";
+const _truckDeliveryFallback = "/chernozem/assets/images/truckDelivery.jpg";
+const _gardenResultFallback  = "/chernozem/assets/images/gardenResult.jpg";
+const _homeownerFallback     = "/chernozem/assets/images/homeowner.jpg";
+const _agroFallback          = "/chernozem/assets/images/agro.jpg";
+const _landscapeFallback     = "/chernozem/assets/images/landscape.jpg";
+const _gardenSegFallback     = "/chernozem/assets/images/gardenSeg.jpg";
+const _lawnFallback          = "/chernozem/assets/images/lawn.jpg";
+const _zilFallback           = "/chernozem/assets/images/truckDelivery.jpg";
+const _kamazFallback         = "/chernozem/assets/images/kamaz.jpg";
+const _mazFallback           = "/chernozem/assets/images/maz.jpg";
+const _volvoFallback         = "/chernozem/assets/images/kamaz.jpg";
 
 /** Convert any image URL (data: or http/relative) to base64 data URL */
 async function toBase64(url: string): Promise<string> {

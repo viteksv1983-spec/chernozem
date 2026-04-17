@@ -1,10 +1,10 @@
 import { CheckCircle2, Truck, Package, Warehouse } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
-const zilTruckImage = "https://images.unsplash.com/photo-1765603955623-e2f57e1c7d29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const kamazTruckImage = "https://images.unsplash.com/photo-1758549756956-68af87f6a55e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const mazTruckImage = "https://images.unsplash.com/photo-1644004482249-cdad1f0da74c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
-const volvoTruckImage = "https://images.unsplash.com/photo-1765603955623-e2f57e1c7d29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+const zilTruckImage = "/chernozem/assets/images/truckDelivery.jpg";
+const kamazTruckImage = "/chernozem/assets/images/kamaz.jpg";
+const mazTruckImage = "/chernozem/assets/images/maz.jpg";
+const volvoTruckImage = "/chernozem/assets/images/kamaz.jpg";
 import { TruckImageCanvas } from "./TruckImageCanvas";
 import { useContent } from "../contexts/ContentContext";
 import { TruckDeliveryItem, SiteContent } from "../lib/siteContent";

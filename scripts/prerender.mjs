@@ -13,7 +13,7 @@
 
 import { readFileSync, writeFileSync, rmSync, mkdirSync } from "fs";
 import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -31,7 +31,7 @@ async function main() {
   // 1. Load the SSR bundle built by `vite build --ssr`
   let render;
   try {
-    ({ render } = await import(SSR_BUNDLE));
+    ({ render } = await import(pathToFileURL(SSR_BUNDLE).href));
   } catch (err) {
     console.error("❌  SSR bundle not found:", SSR_BUNDLE);
     console.error("    Make sure to run: vite build --ssr src/entry-server.tsx");
