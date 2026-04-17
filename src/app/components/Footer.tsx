@@ -136,8 +136,8 @@ export function Footer({ onPrivacy }: { onPrivacy: () => void }) {
               Продукція
             </div>
             {[
-              { label: "Чорнозем насипом (від 5 т)", id: "pricing" },
-              { label: "Чорнозем у мішках (50 кг)",  id: "pricing" },
+              { label: "Чорнозем насипом", id: "pricing" },
+              { label: "Чорнозем у мішках",  id: "pricing" },
             ].map((item) => (
               <button
                 key={item.label}

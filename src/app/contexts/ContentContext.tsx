@@ -52,13 +52,16 @@ export function ContentProvider({ children }: { children: ReactNode }) {
           return localImages ? { ...prev, images: localImages } : prev;
         }
 
-        // Якщо сервер є, перевіряємо чи є у нього зображення
-        const hasServerImgs = Object.values(sc.images ?? {}).some(
-          (v) => typeof v === "string" && v.length > 0
-        );
-        const images = hasServerImgs
-          ? sc.images
-          : (localImages ?? prev.images);
+        // Злиття зображень: пріоритет за незбереженими локальними (data:)
+        const scImages = sc.images || {};
+        const lImages = localImages || prev.images || {};
+        const images = { ...scImages };
+        
+        for (const [k, v] of Object.entries(lImages)) {
+          if (typeof v === "string" && v.startsWith("data:")) {
+            images[k as keyof typeof images] = v;
+          }
+        }
 
         return { ...sc, images };
       });

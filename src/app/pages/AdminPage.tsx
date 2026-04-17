@@ -101,7 +101,6 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
     try {
       const ok = await api.verifyPassword(pass);
       if (ok) {
-        api.setAdminPassword(pass);
         sessionStorage.setItem(ADMIN_SESSION_KEY, pass);
         sessionStorage.setItem(ADMIN_PASSWORD_KEY, "true"); // backward compat
         onLogin();
@@ -567,11 +566,7 @@ export function AdminPage() {
   const [saving, setSaving]     = useState(false);
   const [drawerOpen, setDrawer] = useState(false);
 
-  // ── Відновити пароль адміна із sessionStorage ──────────────────
-  useEffect(() => {
-    const storedPass = sessionStorage.getItem(ADMIN_SESSION_KEY);
-    if (storedPass) api.setAdminPassword(storedPass);
-  }, []);
+  // ── Відновити пароль адміна із sessionStorage (видалено, тепер в api.ts) ──
   const [storageInfo, setStorageInfo] = useState("");
   const isMobile = useIsMobile();
   const tabsRef    = useRef<HTMLDivElement>(null);
@@ -597,7 +592,6 @@ export function AdminPage() {
       if (!currentOk) { setPwError("Поточний пароль невірний"); return; }
       await api.changePassword(pwNew, pwCurrent);
       // Оновити сесійний пароль
-      api.setAdminPassword(pwNew);
       sessionStorage.setItem(ADMIN_SESSION_KEY, pwNew);
       setPwSuccess(true);
       setPwCurrent(""); setPwNew(""); setPwConfirm("");
@@ -648,8 +642,19 @@ export function AdminPage() {
     seo: { ...DEFAULT_CONTENT.seo, ...(c.seo ?? {}) },
   });
 
-  const [draft, setDraft] = useState<SiteContent>(() => safeMerge(content));
-  useEffect(() => { setDraft(safeMerge(content)); }, [content]);
+  const [draft, _setDraft] = useState<SiteContent>(() => safeMerge(content));
+  const isDirtyRef = useRef(false);
+
+  const setDraft = useCallback((value: React.SetStateAction<SiteContent>) => {
+    isDirtyRef.current = true;
+    _setDraft(value);
+  }, []);
+
+  useEffect(() => {
+    if (!isDirtyRef.current) {
+      _setDraft(safeMerge(content));
+    }
+  }, [content]);
   useEffect(() => {
     const lsUsed = estimateStorageUsed();
     const imgCount = Object.values(draft.images).filter(Boolean).length;
@@ -706,6 +711,7 @@ export function AdminPage() {
     try {
       updateContent(() => draft); // зберегти в localStorage/IDB як резервну копію
       await api.saveContent(draft); // зберегти на сервері (для всіх пристроїв)
+      isDirtyRef.current = false;
       setSaved(true);
       setToast("✓ Зміни збережено на сервері!");
       setTimeout(() => setSaved(false), 2500);
@@ -851,7 +857,6 @@ export function AdminPage() {
             <Eye size={14} />Переглянути сайт
           </a>
           <button onClick={() => {
-            api.setAdminPassword(null);
             sessionStorage.removeItem(ADMIN_SESSION_KEY);
             sessionStorage.removeItem(ADMIN_PASSWORD_KEY);
             setAuthed(false);
@@ -1584,6 +1589,21 @@ export function AdminPage() {
                     </div>
                   )}
                 </Field>
+
+                <Field label="Google Tag Manager ID" hint='Формат: GTM-XXXXXXX · Залиште порожнім щоб вимкнути'>
+                  <TInput
+                    value={intg.gtmId || ""}
+                    onChange={(v) => setIntg({ ...intg, gtmId: v.trim() })}
+                    placeholder="GTM-XXXXXXX"
+                  />
+                  {intg.gtmId && (
+                    <div style={{ marginTop: "8px" }}>
+                      <span style={{ fontSize: "12px", fontWeight: 600, color: C.success, background: "#d1fae5", border: "1px solid #6ee7b7", padding: "3px 10px", borderRadius: "20px" }}>
+                        ✓ GTM контейнер буде активовано при відкритті сайту
+                      </span>
+                    </div>
+                  )}
+                </Field>
                 <button
                   onClick={handleSaveIntg}
                   style={{ display: "flex", alignItems: "center", gap: "6px", padding: "10px 20px", borderRadius: "8px", background: intgSaved ? C.success : `linear-gradient(135deg, ${C.accent}, #2d7a50)`, border: "none", color: "#fff", fontSize: "13px", fontWeight: 700, cursor: "pointer", fontFamily: SANS, transition: "background 0.3s" }}>
@@ -1661,6 +1681,7 @@ export function AdminPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                   {[
                     { label: "Google Analytics", ok: !!intg.gaId, value: intg.gaId || "Не налаштовано" },
+                    { label: "Google Tag Manager", ok: !!intg.gtmId, value: intg.gtmId || "Не налаштовано" },
                     { label: "Telegram Bot Token", ok: !!intg.tgBotToken, value: intg.tgBotToken ? `${intg.tgBotToken.slice(0, 12)}...` : "Не налаштовано" },
                     { label: "Telegram Chat ID", ok: !!intg.tgChatId, value: intg.tgChatId || "Не налаштовано" },
                   ].map(({ label, ok, value }) => (

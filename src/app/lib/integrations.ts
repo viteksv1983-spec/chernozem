@@ -6,6 +6,8 @@
 export interface IntegrationSettings {
   /** Google Analytics 4 Measurement ID, напр. "G-XXXXXXXXXX" */
   gaId: string;
+  /** Google Tag Manager Container ID, напр. "GTM-XXXXXXX" */
+  gtmId: string;
   /** Telegram Bot Token від @BotFather, напр. "123456:ABCdef..." */
   tgBotToken: string;
   /** Telegram Chat ID або @username каналу/групи */
@@ -16,6 +18,7 @@ const STORAGE_KEY = "kc_integrations_v1";
 
 const DEFAULTS: IntegrationSettings = {
   gaId: "",
+  gtmId: "",
   tgBotToken: "",
   tgChatId: "",
 };
@@ -105,6 +108,46 @@ export function trackEvent(
       w.gtag("event", eventName, params ?? {});
     }
   } catch { /* non-critical */ }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  Google Tag Manager — динамічне підключення
+// ─────────────────────────────────────────────────────────────
+let gtmInjected = false;
+
+/**
+ * Інжектує GTM Script у <head> та GTM noscript у <body>.
+ * Виконується синхронно під час старту програми (не deferred), 
+ * щоб маркетингові тригери працювали без затримок.
+ */
+export function injectGTM(gtmId: string): void {
+  if (!gtmId || gtmInjected) return;
+  if (typeof document === "undefined") return;
+
+  gtmInjected = true;
+
+  // 1. Script in <head>
+  const script = document.createElement("script");
+  script.id = "gtm-script";
+  // Minified GTM snippet
+  script.innerHTML = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','${gtmId}');`;
+  document.head.insertBefore(script, document.head.firstChild);
+
+  // 2. Noscript in <body> (Fallback for completeness, though JS is required for React CSR)
+  const noscript = document.createElement("noscript");
+  noscript.id = "gtm-noscript";
+  const iframe = document.createElement("iframe");
+  iframe.src = `https://www.googletagmanager.com/ns.html?id=${gtmId}`;
+  iframe.height = "0";
+  iframe.width = "0";
+  iframe.style.display = "none";
+  iframe.style.visibility = "hidden";
+  noscript.appendChild(iframe);
+  document.body.insertBefore(noscript, document.body.firstChild);
 }
 
 // ─────────────────────────────────────────────────────────────

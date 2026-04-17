@@ -10,16 +10,15 @@ const AUTH_HEADERS: Record<string, string> = {
   'Content-Type': 'application/json',
 };
 
-// ── Session admin password (module-level) ────────────────────
-// Встановлюється при логіні адміна, очищається при виході.
-let _adminPassword: string | null = null;
-
-export function setAdminPassword(p: string | null): void {
-  _adminPassword = p;
-}
+// ── Session admin password ──────────────────────────────────
+// Читається напряму з sessionStorage
+const ADMIN_SESSION_KEY = "kyivchornozem_admin_pass_v1";
 
 export function getAdminPassword(): string | null {
-  return _adminPassword;
+  if (typeof sessionStorage !== 'undefined') {
+    return sessionStorage.getItem(ADMIN_SESSION_KEY);
+  }
+  return null;
 }
 
 // ── Content ──────────────────────────────────────────────────
@@ -53,10 +52,11 @@ export async function saveContent(content: SiteContent): Promise<void> {
     return; // mock success (AdminPage already updates localStorage)
   }
 
-  if (!_adminPassword) throw new Error('Пароль адміна не встановлено');
+  const pass = getAdminPassword();
+  if (!pass) throw new Error('Пароль адміна не встановлено');
   const res = await fetch(`${BASE}?action=content`, {
     method: 'POST',
-    headers: { ...AUTH_HEADERS, 'X-Admin-Password': _adminPassword },
+    headers: { ...AUTH_HEADERS, 'X-Admin-Password': pass },
     body: JSON.stringify({ content }),
   });
   if (!res.ok) {
@@ -91,7 +91,7 @@ export async function changePassword(newPassword: string, currentPassword?: stri
     return; // mock success
   }
 
-  const pass = currentPassword ?? _adminPassword;
+  const pass = currentPassword ?? getAdminPassword();
   if (!pass) throw new Error('Пароль адміна не встановлено');
   const res = await fetch(`${BASE}?action=change-password`, {
     method: 'POST',
@@ -123,10 +123,11 @@ export async function uploadImage(
     return imageBase64; // just return the base64 string as the URL for offline mode
   }
 
-  if (!_adminPassword) throw new Error('Пароль адміна не встановлено');
+  const pass = getAdminPassword();
+  if (!pass) throw new Error('Пароль адміна не встановлено');
   const res = await fetch(`${BASE}?action=upload`, {
     method: 'POST',
-    headers: { ...AUTH_HEADERS, 'X-Admin-Password': _adminPassword },
+    headers: { ...AUTH_HEADERS, 'X-Admin-Password': pass },
     body: JSON.stringify({ imageKey, imageBase64, mimeType }),
   });
   if (!res.ok) {

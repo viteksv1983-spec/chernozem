@@ -40,6 +40,7 @@ import { OfflineNotice }   from "../components/OfflineNotice";
 import {
   loadIntegrations,
   injectGoogleAnalytics,
+  injectGTM,
   trackEvent,
   retryPendingOrders,
 } from "../lib/integrations";
@@ -104,9 +105,10 @@ export function SitePage() {
     captureUtm();
 
     // GA is injected AFTER first user interaction (see integrations.ts).
-    // This prevents GTM/GA4 (~70-100KB JS) from counting toward TBT.
-    const { gaId } = loadIntegrations();
+    // This prevents GA4 (~70-100KB JS) from counting toward TBT.
+    const { gaId, gtmId } = loadIntegrations();
     if (gaId) injectGoogleAnalytics(gaId);
+    if (gtmId) injectGTM(gtmId);
 
     retryPendingOrders().catch(console.warn);
     const onOnline = () => retryPendingOrders().catch(console.warn);
