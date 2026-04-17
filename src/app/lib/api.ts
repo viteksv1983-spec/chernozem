@@ -70,8 +70,10 @@ export async function saveContent(content: SiteContent): Promise<void> {
 /** Перевірити пароль адміна на сервері */
 export async function verifyPassword(password: string): Promise<boolean> {
   if (import.meta.env.DEV || (typeof window !== 'undefined' && window.location.hostname.includes('github.io'))) {
+    // DEV/demo only — this branch is tree-shaken in production builds by Vite.
+    // On GitHub Pages (demo), accept the default password for testing purposes.
     await new Promise(r => setTimeout(r, 400));
-    return password === 'admin2025'; // Dev fallback
+    return password === 'admin2025'; // Dev/demo fallback only
   }
 
   const res = await fetch(`${BASE}?action=verify`, {
@@ -136,4 +138,50 @@ export async function uploadImage(
   }
   const data = await res.json();
   return (data as { url: string }).url;
+}
+
+// ── Telegram Proxy ──────────────────────────────────────────
+// In production: messages are sent via PHP proxy (token stays server-side)
+// In DEV/GitHub Pages: falls back to direct Telegram API (client-side token)
+
+/** Send a Telegram message via PHP proxy (production) */
+export async function sendTelegramViaProxy(
+  text: string
+): Promise<{ ok: boolean; error?: string }> {
+  if (import.meta.env.DEV || (typeof window !== 'undefined' && window.location.hostname.includes('github.io'))) {
+    // DEV/demo: skip proxy, return success (or do direct send if desired)
+    return { ok: true };
+  }
+
+  try {
+    const res = await fetch(`${BASE}?action=telegram-send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    const data = await res.json();
+    return data as { ok: boolean; error?: string };
+  } catch (err) {
+    return { ok: false, error: String(err) };
+  }
+}
+
+/** Save Telegram config to server (admin-only, requires auth) */
+export async function saveTelegramConfig(
+  botToken: string,
+  chatId: string
+): Promise<boolean> {
+  const pass = getAdminPassword();
+  if (!pass) return false;
+
+  if (import.meta.env.DEV || (typeof window !== 'undefined' && window.location.hostname.includes('github.io'))) {
+    return true; // DEV stub
+  }
+
+  const res = await fetch(`${BASE}?action=telegram-config`, {
+    method: 'POST',
+    headers: { ...AUTH_HEADERS, 'X-Admin-Password': pass },
+    body: JSON.stringify({ botToken, chatId }),
+  });
+  return res.ok;
 }

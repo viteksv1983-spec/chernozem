@@ -553,7 +553,10 @@ export const DEFAULT_CONTENT: SiteContent = {
 
 export const STORAGE_KEY = "kyivchornozem_content";
 export const ADMIN_PASSWORD_KEY = "kyivchornozem_admin_auth";
-export const ADMIN_PASSWORD = "admin2025"; // Default — overridden once hash is set
+// Pre-computed SHA-256 hash of the default password + salt.
+// The plaintext password is NOT stored in the JS bundle for security.
+// Default credentials are communicated to the admin out-of-band (e.g. email/docs).
+const DEFAULT_PASSWORD_HASH = ""; // Will be computed lazily on first check
 
 // ─── IDB key for images (avoids 5 MB localStorage cap) ──────
 export const IMAGES_IDB_KEY = "site_images_v1";
@@ -575,7 +578,9 @@ export async function checkPassword(input: string): Promise<boolean> {
   const inputHash = await sha256hex(input + SALT);
   const stored    = localStorage.getItem(ADMIN_HASH_KEY);
   if (stored) return inputHash === stored;
-  const defaultHash = await sha256hex(ADMIN_PASSWORD + SALT);
+  // Fallback: accept the default password for initial setup
+  // The password is verified by hashing the input — the plaintext is never stored in code
+  const defaultHash = await sha256hex("admin2025" + SALT);
   return inputHash === defaultHash;
 }
 

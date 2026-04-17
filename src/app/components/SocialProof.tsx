@@ -1,6 +1,7 @@
-const truckDeliveryImg  = "/chernozem/assets/images/truckDelivery.jpg";
-const gardenResultImg   = "/chernozem/assets/images/gardenResult.jpg";
-const homeownerImg      = "/chernozem/assets/images/homeowner.jpg";
+const _base = import.meta.env.BASE_URL;
+const truckDeliveryImg  = `${_base}assets/images/truckDelivery.jpg`;
+const gardenResultImg   = `${_base}assets/images/gardenResult.jpg`;
+const homeownerImg      = `${_base}assets/images/homeowner.jpg`;
 
 import { motion } from "motion/react";
 import { Star, Quote, ArrowRight, Leaf } from "lucide-react";

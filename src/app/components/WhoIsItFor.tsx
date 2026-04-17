@@ -1,9 +1,10 @@
 import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
-const agroImage     = "/chernozem/assets/images/agro.jpg";
-const landscapeImage = "/chernozem/assets/images/landscape.jpg";
-const gardenImage    = "/chernozem/assets/images/gardenSeg.jpg";
-const lawnImage      = "/chernozem/assets/images/lawn.jpg";
+const _base = import.meta.env.BASE_URL;
+const agroImage     = `${_base}assets/images/agro.jpg`;
+const landscapeImage = `${_base}assets/images/landscape.jpg`;
+const gardenImage    = `${_base}assets/images/gardenSeg.jpg`;
+const lawnImage      = `${_base}assets/images/lawn.jpg`;
 import { useContent } from "../contexts/ContentContext";
 import { SiteContent } from "../lib/siteContent";
 

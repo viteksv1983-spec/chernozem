@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   X, CheckCircle, Phone, User, Package,
@@ -8,6 +8,134 @@ import { sendTelegramOrder, trackEvent } from "../lib/integrations";
 import { getUtm, utmToString } from "../lib/utm";
 import { useContent } from "../contexts/ContentContext";
 import { getRecommendedTruck } from "../lib/siteContent";
+
+// ─── Ukrainian Phone Validation ────────────────────────────────
+// Comprehensive validation for Ukrainian mobile + landline numbers
+// with operator code whitelist and input auto-formatting.
+// ────────────────────────────────────────────────────────────────
+
+/** Valid Ukrainian mobile operator codes (2-digit after leading 0) */
+const UA_MOBILE_CODES = new Set([
+  // Kyivstar
+  "67", "68", "96", "97", "98",
+  // Vodafone (ex-MTS)
+  "50", "66", "95", "99",
+  // lifecell
+  "63", "73", "93",
+  // 3Mob (ex-Utel/Trimob)
+  "91",
+  // PEOPLEnet
+  "92",
+  // Intertelecom
+  "94",
+  // Lycamobile
+  "78",
+  // Additional virtual/MVNO
+  "70", "71", "72", "74", "75", "76", "77",
+]);
+
+/** Valid Kyiv landline code */
+const UA_LANDLINE_CODES = new Set(["44"]);
+
+/** All valid operator/area codes */
+const ALL_UA_CODES = new Set([...UA_MOBILE_CODES, ...UA_LANDLINE_CODES]);
+
+/**
+ * Extract pure digits from any phone input.
+ * Strips all non-digit characters, normalizes leading +38/38/8 to standard form.
+ */
+function extractDigits(raw: string): string {
+  return raw.replace(/\D/g, "");
+}
+
+/**
+ * Normalize to 10-digit national format: 0XXXXXXXXX
+ * Accepts: +380971234567, 380971234567, 0971234567, 971234567
+ */
+function toNationalDigits(raw: string): string {
+  const d = extractDigits(raw);
+  if (d.length === 12 && d.startsWith("380")) return "0" + d.slice(3);
+  if (d.length === 11 && d.startsWith("80"))  return "0" + d.slice(2);
+  if (d.length === 10 && d.startsWith("0"))   return d;
+  if (d.length === 9)                         return "0" + d;
+  return d;
+}
+
+/**
+ * Format phone digits into readable mask: +38 (0XX) XXX-XX-XX
+ * Formats progressively as user types.
+ */
+function formatPhoneDisplay(raw: string): string {
+  const nat = toNationalDigits(raw);
+  if (!nat || nat.length === 0) return "";
+  
+  const d = nat.replace(/^0/, ""); // Remove leading 0 for formatting
+  
+  if (d.length === 0) return "+38 (0";
+  if (d.length <= 2)  return `+38 (0${d}`;
+  if (d.length <= 5)  return `+38 (0${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 7)  return `+38 (0${d.slice(0, 2)}) ${d.slice(2, 5)}-${d.slice(5)}`;
+  return `+38 (0${d.slice(0, 2)}) ${d.slice(2, 5)}-${d.slice(5, 7)}-${d.slice(7, 9)}`;
+}
+
+interface PhoneValidation {
+  isValid: boolean;
+  isComplete: boolean;
+  error: string;
+  operatorName: string;
+}
+
+/**
+ * Validate Ukrainian phone number with operator identification.
+ * Returns validation state + friendly operator name.
+ */
+function validateUAPhone(raw: string): PhoneValidation {
+  const digits = extractDigits(raw);
+  
+  // Empty — not an error yet (user hasn't started typing)
+  if (digits.length === 0) {
+    return { isValid: false, isComplete: false, error: "", operatorName: "" };
+  }
+  
+  const national = toNationalDigits(raw);
+  
+  // Too short — still typing
+  if (national.length < 10) {
+    return { isValid: false, isComplete: false, error: "", operatorName: "" };
+  }
+  
+  // Exactly 10 digits — check format
+  if (national.length !== 10 || !national.startsWith("0")) {
+    return { isValid: false, isComplete: true, error: "Невірний формат номера", operatorName: "" };
+  }
+  
+  // Extract operator code (2 digits after leading 0)
+  const opCode = national.slice(1, 3);
+  
+  // Check if operator code is valid
+  if (!ALL_UA_CODES.has(opCode)) {
+    return {
+      isValid: false,
+      isComplete: true,
+      error: `Невідомий код оператора: 0${opCode}. Перевірте номер.`,
+      operatorName: "",
+    };
+  }
+
+  // Identify operator for UX feedback
+  let operatorName = "";
+  if (["67", "68", "96", "97", "98"].includes(opCode)) operatorName = "Київстар";
+  else if (["50", "66", "95", "99"].includes(opCode)) operatorName = "Vodafone";
+  else if (["63", "73", "93"].includes(opCode))        operatorName = "lifecell";
+  else if (opCode === "91")                            operatorName = "3Mob";
+  else if (opCode === "92")                            operatorName = "PEOPLEnet";
+  else if (opCode === "94")                            operatorName = "Intertelecom";
+  else if (opCode === "78")                            operatorName = "Lycamobile";
+  else if (opCode === "44")                            operatorName = "Київ (стаціонарний)";
+  else                                                 operatorName = "Мобільний";
+  
+  return { isValid: true, isComplete: true, error: "", operatorName };
+}
 
 const SERIF = "'Playfair Display', Georgia, serif";
 const SANS  = "'Inter', system-ui, sans-serif";
@@ -40,10 +168,60 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
   const [name,       setName]       = useState("");
   const [phone,      setPhone]      = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [phoneMeta,  setPhoneMeta]  = useState<PhoneValidation>({ isValid: false, isComplete: false, error: "", operatorName: "" });
   const [volume,     setVolume]     = useState(prefillTons ? String(prefillTons) : "10");
   const [soilType,   setSoilType]   = useState("bulk");
   const [submitted,  setSubmitted]  = useState(false);
   const [sending,    setSending]    = useState(false);
+
+  // ── Phone input handler with auto-formatting ──────────────────────────────
+  const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const digits = extractDigits(rawValue);
+    
+    // Limit to max 12 digits (380 + 9 digits) to prevent overflow
+    if (digits.length > 12) return;
+    
+    // Auto-format the display value
+    const formatted = digits.length > 0 ? formatPhoneDisplay(rawValue) : "";
+    setPhone(formatted);
+    
+    // Real-time validation (non-blocking — errors only shown on complete input)
+    const validation = validateUAPhone(formatted);
+    setPhoneMeta(validation);
+    
+    // Clear error when user edits after a submit-triggered error
+    if (phoneError && !validation.isComplete) {
+      setPhoneError("");
+    }
+    // Show error only if number looks complete but invalid
+    if (validation.isComplete && !validation.isValid) {
+      setPhoneError(validation.error);
+    } else if (validation.isValid) {
+      setPhoneError("");
+    }
+  }, [phoneError]);
+
+  // ── Smart paste: handle pasted phone numbers ──────────────────────────────
+  const handlePhonePaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text");
+    const digits = extractDigits(pasted);
+    if (digits.length === 0) return;
+    
+    // Format pasted digits
+    const formatted = formatPhoneDisplay(pasted);
+    setPhone(formatted);
+    
+    // Validate immediately
+    const validation = validateUAPhone(formatted);
+    setPhoneMeta(validation);
+    if (validation.isComplete && !validation.isValid) {
+      setPhoneError(validation.error);
+    } else {
+      setPhoneError("");
+    }
+  }, []);
 
   // Sync prefillTons → volume every time the modal re-opens with a new value
   useEffect(() => {
@@ -93,21 +271,26 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
     e.preventDefault();
     if (!name.trim() || !phone.trim()) return;
 
-    // Ukrainian phone validation (+380XXXXXXXXX or 0XXXXXXXXX)
-    const cleaned = phone.replace(/[\s\-().+]/g, "");
-    if (!/^(380|0)\d{9}$/.test(cleaned)) {
-      setPhoneError("Введіть коректний номер (+380XXXXXXXXX або 0XXXXXXXXX)");
+    // Final phone validation (with operator code check)
+    const validation = validateUAPhone(phone);
+    if (!validation.isValid) {
+      setPhoneError(validation.error || "Введіть коректний номер телефону");
       return;
     }
+    
     setPhoneError("");
     setSending(true);
+
+    // Normalize phone for server submission: 0XXXXXXXXX → +380XXXXXXXXX
+    const nationalPhone = toNationalDigits(phone);
+    const formattedPhone = `+38${nationalPhone.slice(1)}`;
 
     const utmInfo = utmToString(getUtm()) || undefined;
 
     // Fire-and-forget to Telegram (retry queue handles failures)
     sendTelegramOrder({
       name: name.trim(),
-      phone: phone.trim(),
+      phone: formattedPhone,
       volumeLabel: isBulk ? `${volume} т` : `${volume} мішків`,
       soilType: soilType as "bulk" | "bags",
       truckName: truck.name,
@@ -430,21 +613,37 @@ export function OrderModal({ isOpen, onClose, isCalc, prefillTons }: OrderModalP
 
                       {/* ── Phone ── */}
                       <div style={{ marginBottom: "28px" }}>
-                        <label style={labelStyle}>
-                          <Phone size={13} style={{ display: "inline", marginRight: "6px" }} />
-                          Номер телефону
+                        <label style={{ ...labelStyle, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span>
+                            <Phone size={13} style={{ display: "inline", marginRight: "6px" }} />
+                            Номер телефону
+                          </span>
+                          {/* Operator badge — shows when phone is valid */}
+                          {phoneMeta.isValid && phoneMeta.operatorName && (
+                            <span style={{
+                              fontFamily: SANS, fontSize: "11px", fontWeight: 600,
+                              color: "#3a7a57", background: "#e8f5ee",
+                              padding: "2px 8px", borderRadius: "6px",
+                              display: "inline-flex", alignItems: "center", gap: "4px",
+                            }}>
+                              {phoneMeta.operatorName} ✓
+                            </span>
+                          )}
                         </label>
                         <input
                           type="tel" value={phone}
-                          onChange={(e) => { setPhone(e.target.value); setPhoneError(""); }}
-                          placeholder="+38 (097) ___-__-__" required
+                          onChange={handlePhoneChange}
+                          onPaste={handlePhonePaste}
+                          placeholder="+38 (0XX) XXX-XX-XX" required
+                          autoComplete="tel"
+                          inputMode="tel"
                           style={{
                             ...inputStyle,
-                            border: `1.5px solid ${phoneError ? "#dc2626" : "#e0d8c8"}`,
-                            background: phoneError ? "#fef2f2" : "#faf7f2",
+                            border: `1.5px solid ${phoneError ? "#dc2626" : phoneMeta.isValid ? "#3a7a57" : "#e0d8c8"}`,
+                            background: phoneError ? "#fef2f2" : phoneMeta.isValid ? "#f0faf5" : "#faf7f2",
                           }}
                           onFocus={(e) => (e.target.style.borderColor = phoneError ? "#dc2626" : "#3a7a57")}
-                          onBlur={(e) => (e.target.style.borderColor = phoneError ? "#dc2626" : "#e0d8c8")}
+                          onBlur={(e) => (e.target.style.borderColor = phoneError ? "#dc2626" : phoneMeta.isValid ? "#3a7a57" : "#e0d8c8")}
                         />
                         {phoneError && (
                           <div style={{ display: "flex", alignItems: "center", gap: "5px", marginTop: "6px" }}>

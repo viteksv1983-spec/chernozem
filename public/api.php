@@ -81,6 +81,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Всі наступні дії вимагають авторизації через заголовок
+    // EXCEPT telegram-send (public order form) which was handled above
+
+    // 2.1b Telegram Proxy — send message (NO AUTH — public order form)
+    if ($action === 'telegram-send') {
+        $tgConfigFile = $dataDir . '/telegram.json';
+        if (!file_exists($tgConfigFile)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Telegram не налаштовано']);
+            exit;
+        }
+        $tgConfig = json_decode(file_get_contents($tgConfigFile), true);
+        $token = $tgConfig['botToken'] ?? '';
+        $chatId = $tgConfig['chatId'] ?? '';
+        if (empty($token) || empty($chatId)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Telegram Bot Token або Chat ID не задано']);
+            exit;
+        }
+        $text = $data['text'] ?? '';
+        if (empty($text)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Порожнє повідомлення']);
+            exit;
+        }
+        $tgUrl = 'https://api.telegram.org/bot' . $token . '/sendMessage';
+        $ch = curl_init($tgUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode([
+                'chat_id' => $chatId,
+                'text' => $text,
+                'parse_mode' => 'HTML',
+            ]),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 10,
+        ]);
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $tgResponse = json_decode($result, true);
+        header('Content-Type: application/json');
+        if ($httpCode === 200 && ($tgResponse['ok'] ?? false)) {
+            echo json_encode(['ok' => true]);
+        } else {
+            http_response_code(502);
+            echo json_encode(['ok' => false, 'error' => $tgResponse['description'] ?? 'Telegram API error']);
+        }
+        exit;
+    }
+
+    // Всі наступні дії вимагають авторизації через заголовок
     $authPass = getAuthPassword();
     if (!verifyPassword($authPass)) {
         http_response_code(401);
@@ -156,6 +208,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['error' => 'Невірний формат Base64.']);
             exit;
         }
+    }
+
+
+    // 2.6 Telegram Config — save bot token + chat ID (admin only, already auth-checked above)
+    if ($action === 'telegram-config') {
+        $tgConfigFile = $dataDir . '/telegram.json';
+        $botToken = $data['botToken'] ?? '';
+        $chatId = $data['chatId'] ?? '';
+        // Validate token format: 123456:ABCdef...
+        if (!empty($botToken) && !preg_match('/^\d+:[A-Za-z0-9_-]{30,50}$/', $botToken)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Невірний формат Bot Token']);
+            exit;
+        }
+        file_put_contents($tgConfigFile, json_encode([
+            'botToken' => $botToken,
+            'chatId' => $chatId,
+        ], JSON_UNESCAPED_UNICODE));
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // 2.7 Telegram Config — read (admin only, returns masked token)
+    if ($action === 'telegram-config' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+        // This won't actually match (we're inside POST block), but keep for docs
     }
 
     http_response_code(400);

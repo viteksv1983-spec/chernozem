@@ -38,6 +38,23 @@ export function saveIntegrations(settings: IntegrationSettings): void {
 }
 
 // ─────────────────────────────────────────────────────────────
+//  Security: strict ID format validation
+//  Prevents XSS via specially crafted IDs injected through innerHTML.
+//  GA4 Measurement ID: G-XXXXXXXXXX (10-12 alphanumeric chars after G-)
+//  GTM Container ID:   GTM-XXXXXXX (6-8 alphanumeric chars after GTM-)
+// ─────────────────────────────────────────────────────────────
+const GA_ID_REGEX  = /^G-[A-Z0-9]{10,12}$/i;
+const GTM_ID_REGEX = /^GTM-[A-Z0-9]{6,8}$/i;
+
+function isValidGaId(id: string): boolean {
+  return GA_ID_REGEX.test(id.trim());
+}
+
+function isValidGtmId(id: string): boolean {
+  return GTM_ID_REGEX.test(id.trim());
+}
+
+// ─────────────────────────────────────────────────────────────
 //  Google Analytics — динамічне підключення
 // ─────────────────────────────────────────────────────────────
 let gaInjected = false;
@@ -56,6 +73,11 @@ let gaInjected = false;
 export function injectGoogleAnalytics(gaId: string): void {
   if (!gaId || gaInjected) return;
   if (typeof document === "undefined") return;
+  // Security: validate GA ID format to prevent XSS via innerHTML injection
+  if (!isValidGaId(gaId)) {
+    console.warn(`[integrations] Invalid GA4 ID format rejected: "${gaId.slice(0, 20)}". Expected: G-XXXXXXXXXX`);
+    return;
+  }
 
   const doInject = () => {
     if (gaInjected) return;
@@ -123,6 +145,11 @@ let gtmInjected = false;
 export function injectGTM(gtmId: string): void {
   if (!gtmId || gtmInjected) return;
   if (typeof document === "undefined") return;
+  // Security: validate GTM ID format to prevent XSS via innerHTML injection
+  if (!isValidGtmId(gtmId)) {
+    console.warn(`[integrations] Invalid GTM ID format rejected: "${gtmId.slice(0, 20)}". Expected: GTM-XXXXXXX`);
+    return;
+  }
 
   gtmInjected = true;
 
@@ -238,13 +265,9 @@ export async function retryPendingOrders(): Promise<void> {
 }
 
 // ─────────────────────────────────────────────────────────────
-//  Internal: build + send a single Telegram message
+//  Internal: build message text for Telegram
 // ─────────────────────────────────────────────────────────────
-async function sendTelegramMessage(
-  order: OrderData,
-  token: string,
-  chatId: string
-): Promise<{ ok: boolean; error?: string }> {
+function buildOrderMessageText(order: OrderData): string {
   const soilLine =
     order.soilType === "bulk"
       ? `📦 <b>Замовлення:</b> Насипом — ${order.volumeLabel}`
@@ -259,7 +282,7 @@ async function sendTelegramMessage(
     ? `🌐 <b>Джерело:</b> ${escapeHtml(order.utmInfo)}\n`
     : "";
 
-  const text =
+  return (
     `🌱 <b>Нова заявка — КиївЧорнозем</b>\n` +
     `━━━━━━━━━━━━━━━━━━━\n` +
     `👤 <b>Ім'я:</b> ${escapeHtml(order.name)}\n` +
@@ -270,8 +293,29 @@ async function sendTelegramMessage(
     `💰 <b>Разом (~):</b> ${order.totalMin.toLocaleString("uk-UA")}–${order.totalMax.toLocaleString("uk-UA")} грн\n` +
     `━━━━━━━━━━━━━━━━━━━\n` +
     utmLine +
-    `⏰ ${now}`;
+    `⏰ ${now}`
+  );
+}
 
+// ─────────────────────────────────────────────────────────────
+//  Internal: send a single Telegram message
+//  Production: via PHP proxy (token stays server-side)
+//  DEV/demo:   via direct Telegram API (client-side token)
+// ─────────────────────────────────────────────────────────────
+async function sendTelegramMessage(
+  order: OrderData,
+  token: string,
+  chatId: string
+): Promise<{ ok: boolean; error?: string }> {
+  const text = buildOrderMessageText(order);
+
+  // Production: use PHP proxy — token never leaves the server
+  if (!import.meta.env.DEV && !(typeof window !== 'undefined' && window.location.hostname.includes('github.io'))) {
+    const { sendTelegramViaProxy } = await import('./api');
+    return sendTelegramViaProxy(text);
+  }
+
+  // DEV/demo fallback: direct Telegram API call (token from localStorage)
   try {
     const res = await fetch(
       `https://api.telegram.org/bot${token.trim()}/sendMessage`,
