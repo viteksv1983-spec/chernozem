@@ -32,9 +32,9 @@ if (!is_dir($uploadsDir)) {
     file_put_contents($uploadsDir . '/.htaccess', "Options -Indexes\n");
 }
 
-// Ініціалізація пароля за замовчуванням ("admin2025")
+// Ініціалізація пароля за замовчуванням (уже не генеруємо автоматично)
 if (!file_exists($passwordFile)) {
-    file_put_contents($passwordFile, password_hash("admin2025", PASSWORD_BCRYPT));
+    // We let the system know the file is missing when trying to verify
 }
 
 function verifyPassword($passwordInput) {

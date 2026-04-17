@@ -54,8 +54,8 @@ function extractDigits(raw: string): string {
  */
 function toNationalDigits(raw: string): string {
   const d = extractDigits(raw);
-  if (d.length === 12 && d.startsWith("380")) return "0" + d.slice(3);
-  if (d.length === 11 && d.startsWith("80"))  return "0" + d.slice(2);
+  if (d.startsWith("380")) return "0" + d.slice(3);
+  if (d.startsWith("80"))  return "0" + d.slice(2);
   if (d.length === 10 && d.startsWith("0"))   return d;
   if (d.length === 9)                         return "0" + d;
   return d;

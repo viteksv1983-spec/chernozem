@@ -578,10 +578,8 @@ export async function checkPassword(input: string): Promise<boolean> {
   const inputHash = await sha256hex(input + SALT);
   const stored    = localStorage.getItem(ADMIN_HASH_KEY);
   if (stored) return inputHash === stored;
-  // Fallback: accept the default password for initial setup
   // The password is verified by hashing the input — the plaintext is never stored in code
-  const defaultHash = await sha256hex("admin2025" + SALT);
-  return inputHash === defaultHash;
+  return false; // Require explicit registration/login via backend config first
 }
 
 export async function changeAdminPassword(newPassword: string): Promise<void> {
