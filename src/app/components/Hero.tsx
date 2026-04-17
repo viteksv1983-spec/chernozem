@@ -280,8 +280,8 @@ export function Hero({ onOrder, onCalc }: HeroProps) {
 
           {/* Pill items */}
           {[
-            "2 000+ клієнтів",
-            "Працюємо з 2015",
+            `${general.clientsCount}+ клієнтів`,
+            `Працюємо з ${general.foundedYear}`,
             "Доставка за 24 години",
           ].map((item, i) => (
             <span
