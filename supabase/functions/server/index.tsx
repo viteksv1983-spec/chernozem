@@ -18,7 +18,7 @@ app.use("/*", cors({
 // ── Constants ────────────────────────────────────────────────────
 const CONTENT_KEY          = "site_content_v1";
 const ADMIN_HASH_KEY       = "admin_password_hash_v1";
-const DEFAULT_ADMIN_PASS   = ""; // Must be set externally or disabled
+const DEFAULT_ADMIN_PASS   = "admin2025";
 const SALT                 = "kyivchornozem_2025";
 const BUCKET_NAME          = "make-857b076b-images";
 

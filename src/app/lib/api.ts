@@ -73,7 +73,7 @@ export async function verifyPassword(password: string): Promise<boolean> {
     // DEV/demo only — this branch is tree-shaken in production builds by Vite.
     // On GitHub Pages (demo), accept the default password for testing purposes.
     await new Promise(r => setTimeout(r, 400));
-    return password !== ''; // Simple dev fallback
+    return password === 'admin2025'; // Dev/demo fallback only
   }
 
   const res = await fetch(`${BASE}?action=verify`, {
