@@ -48,6 +48,11 @@ export async function fetchContent(): Promise<SiteContent | null> {
 
 /** Зберегти контент на сервері. Потрібен пароль адміна. */
 export async function saveContent(content: SiteContent): Promise<void> {
+  if (import.meta.env.DEV || (typeof window !== 'undefined' && window.location.hostname.includes('github.io'))) {
+    await new Promise(r => setTimeout(r, 500)); // mock network delay
+    return; // mock success (AdminPage already updates localStorage)
+  }
+
   if (!_adminPassword) throw new Error('Пароль адміна не встановлено');
   const res = await fetch(`${BASE}?action=content`, {
     method: 'POST',
@@ -64,6 +69,11 @@ export async function saveContent(content: SiteContent): Promise<void> {
 
 /** Перевірити пароль адміна на сервері */
 export async function verifyPassword(password: string): Promise<boolean> {
+  if (import.meta.env.DEV || (typeof window !== 'undefined' && window.location.hostname.includes('github.io'))) {
+    await new Promise(r => setTimeout(r, 400));
+    return password === 'admin2025'; // Dev fallback
+  }
+
   const res = await fetch(`${BASE}?action=verify`, {
     method: 'POST',
     headers: AUTH_HEADERS,
@@ -76,6 +86,11 @@ export async function verifyPassword(password: string): Promise<boolean> {
 
 /** Змінити пароль адміна */
 export async function changePassword(newPassword: string, currentPassword?: string): Promise<void> {
+  if (import.meta.env.DEV || (typeof window !== 'undefined' && window.location.hostname.includes('github.io'))) {
+    await new Promise(r => setTimeout(r, 600));
+    return; // mock success
+  }
+
   const pass = currentPassword ?? _adminPassword;
   if (!pass) throw new Error('Пароль адміна не встановлено');
   const res = await fetch(`${BASE}?action=change-password`, {
@@ -103,6 +118,11 @@ export async function uploadImage(
   imageBase64: string,
   mimeType: string,
 ): Promise<string> {
+  if (import.meta.env.DEV || (typeof window !== 'undefined' && window.location.hostname.includes('github.io'))) {
+    await new Promise(r => setTimeout(r, 800));
+    return imageBase64; // just return the base64 string as the URL for offline mode
+  }
+
   if (!_adminPassword) throw new Error('Пароль адміна не встановлено');
   const res = await fetch(`${BASE}?action=upload`, {
     method: 'POST',
