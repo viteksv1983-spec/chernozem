@@ -520,7 +520,7 @@ export const DEFAULT_CONTENT: SiteContent = {
     robots: "index, follow",
     ogTitle: "КиївЧорнозем — Чорнозем з доставкою по Києву від виробника",
     ogDescription: "Купуйте чорнозем напряму від виробника без посередників. ЗІЛ, КАМАЗ, МАЗ, ВОЛЬВО — від 5 до 35 тонн. Мішки 50 кг — 100 грн. Доставка по Києву та Київській області. Дзвоніть: +38 (098) 111 6059",
-    ogImage: "https://chernozem.com.ua/og-image.jpg",
+    ogImage: "/og-image.png",
     ogUrl: "https://chernozem.com.ua/",
     geoLat: "50.4017",
     geoLng: "30.6420",
