@@ -21,10 +21,10 @@
  *    (keeps admin panel fresh after every deploy)
  */
 
-const ASSETS_CACHE  = 'chernozem-assets-v2';
-const FONTS_CACHE   = 'chernozem-fonts-v2';
-const IMAGES_CACHE  = 'chernozem-images-v2';
-const HTML_CACHE    = 'chernozem-html-v2';
+const ASSETS_CACHE  = 'chernozem-assets-v3';
+const FONTS_CACHE   = 'chernozem-fonts-v3';
+const IMAGES_CACHE  = 'chernozem-images-v3';
+const HTML_CACHE    = 'chernozem-html-v3';
 
 const SECOND = 1;
 const MINUTE = 60 * SECOND;
